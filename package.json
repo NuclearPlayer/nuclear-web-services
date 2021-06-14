@@ -1,0 +1,43 @@
+{
+  "name": "nuclear-web-services",
+  "version": "1.0.0",
+  "description": "Nuclear backend services",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "lerna bootstrap --hoist",
+    "test": "lerna run test",
+    "lint": "lerna run lint",
+    "lint:fix": "lerna run lint:fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NuclearPlayer/nuclear-web-services.git"
+  },
+  "author": "nukeop <nukeop@gumblert.tech>",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/NuclearPlayer/nuclear-web-services/issues"
+  },
+  "homepage": "https://github.com/NuclearPlayer/nuclear-web-services#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": "eslint --fix",
+    "*.jsx": "eslint --fix",
+    "*.ts": "eslint --fix",
+    "*.tsx": "eslint --fix"
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "^4.27.0",
+    "eslint": "^7.28.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "husky": "^6.0.0",
+    "lerna": "^4.0.0",
+    "lint-staged": "^11.0.0",
+    "prettier": "^2.3.1"
+  }
+}
