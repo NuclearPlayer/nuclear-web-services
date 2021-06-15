@@ -1,0 +1,23 @@
+name: CI job for running tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    timeout-minutes: 10
+
+    steps:
+    - uses: actions/checkout@master
+    - name: Use Node.js 14
+      uses: actions/setup-node@master
+      with:
+        version: '14'
+    - name: npm install and test
+      run: |
+        npm install
+        npm test
+      shell: bash
