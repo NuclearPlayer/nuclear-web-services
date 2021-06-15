@@ -7,6 +7,8 @@ import morgan from 'morgan';
 import { Logger } from '@nws/core';
 import { Route } from '@nws/core/src/types';
 
+import { sequelize } from './database';
+
 class App {
   public app: express.Application;
   public port: string | number;
@@ -43,6 +45,10 @@ class App {
 
   public getServer() {
     return this.app;
+  }
+
+  public connectToDatabase() {
+    sequelize.sync({ force: false });
   }
 }
 
