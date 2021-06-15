@@ -11,7 +11,6 @@
     "url": "git+https://github.com/NuclearPlayer/nuclear-web-services.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1",
     "lint": "eslint src --ext .ts",
     "lint:fix": "npm run lint -- --fix"
   },

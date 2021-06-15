@@ -14,7 +14,6 @@
     "start": "cross-env NODE_ENV=production ts-node src/server.ts",
     "build": "tsc",
     "dev": "cross-env NODE_ENV=development nodemon",
-    "test": "echo \"Error: run tests from root\" && exit 1",
     "lint": "eslint src --ext .ts",
     "lint:fix": "npm run lint -- --fix"
   },

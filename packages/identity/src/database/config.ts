@@ -9,7 +9,7 @@ export const config = {
   test: {
     username: 'root',
     password: 'password',
-    database: 'sequelize-test.sqlite',
+    database: ':memory:',
     host: 'localhost',
     dialect: 'sqlite',
   },

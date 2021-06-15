@@ -6,7 +6,7 @@ import { User } from '../models/users.model';
 import { config } from './config';
 
 const env = (process.env.NODE_ENV || 'development') as Environment;
-export let sequelize: Sequelize;
+let sequelize: Sequelize;
 
 if (env === 'production') {
   sequelize = new Sequelize(config[env].database as string, {
@@ -32,3 +32,5 @@ sequelize
   });
 
 sequelize.addModels([User]);
+
+export { sequelize };

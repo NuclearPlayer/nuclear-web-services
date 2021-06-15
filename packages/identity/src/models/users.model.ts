@@ -18,7 +18,7 @@ export interface UserAttributes {
   password: string;
 }
 
-export type UserCreationAttributes = Pick<UserAttributes, 'username' | 'email' | 'password'>;
+export type UserCreationAttributes = Pick<UserAttributes, 'username' | 'email' | 'password' | 'displayName'>;
 
 @DefaultScope(() => ({
   attributes: { exclude: ['password'] }, // auto exclude password from requests
@@ -28,37 +28,40 @@ export type UserCreationAttributes = Pick<UserAttributes, 'username' | 'email' |
   tableName: 'users', // table name in db
 })
 export class User extends Model<UserAttributes, UserCreationAttributes> {
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    primaryKey: true,
+  })
+  public id: string;
+
   @AllowNull(false)
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(),
   })
   public username: string;
 
   @AllowNull(false)
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(),
   })
   public displayName: string;
 
   @IsEmail
   @AllowNull(false)
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(),
   })
   public email: string;
 
   @AllowNull(false)
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(),
   })
   public password: string;
 
   @ValidationFailed
   static afterValidateHook(instance: any, options: any, error: any) {
     throw new HttpException(400, error.message);
-  }
-
-  public constructor() {
-    super();
   }
 }
