@@ -1,4 +1,4 @@
-name: CI job for running tests
+name: Run tests
 
 on: [push, pull_request]
 
