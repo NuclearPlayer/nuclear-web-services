@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "lerna bootstrap --hoist",
     "test": "lerna run lint && lerna run test",
-    "coverage": "lerna run test -- -- --coverage",
+    "coverage": "lerna run coverage",
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix"
   },
