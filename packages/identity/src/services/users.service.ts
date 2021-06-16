@@ -1,4 +1,3 @@
-import { isEmpty } from 'lodash';
 import bcrypt from 'bcrypt';
 
 import { HttpException } from '@nws/core';

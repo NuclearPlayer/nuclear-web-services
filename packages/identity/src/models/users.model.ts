@@ -9,6 +9,13 @@ import {
   Table,
   ValidationFailed,
 } from 'sequelize-typescript';
+import { Optional } from 'sequelize/types';
+
+export enum UserAccountState {
+  UNCONFIRMED = 'UNCONFIRMED',
+  CONFIRMED = 'CONFIRMED',
+  DISABLED = 'DISABLED',
+}
 
 export interface UserAttributes {
   id: string;
@@ -16,9 +23,13 @@ export interface UserAttributes {
   displayName: string;
   email: string;
   password: string;
+  accountState: UserAccountState;
 }
 
-export type UserCreationAttributes = Pick<UserAttributes, 'username' | 'email' | 'password' | 'displayName'>;
+export type UserCreationAttributes = Optional<
+  Pick<UserAttributes, 'username' | 'email' | 'password' | 'displayName'>,
+  'displayName'
+>;
 
 @DefaultScope(() => ({
   attributes: { exclude: ['password'] }, // auto exclude password from requests
@@ -59,6 +70,13 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
     type: DataType.STRING(),
   })
   public password: string;
+
+  @AllowNull(false)
+  @Column({
+    type: DataType.STRING(),
+    defaultValue: UserAccountState.UNCONFIRMED,
+  })
+  public accountState: UserAccountState;
 
   @ValidationFailed
   static afterValidateHook(instance: any, options: any, error: any) {

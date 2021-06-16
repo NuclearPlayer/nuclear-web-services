@@ -34,6 +34,7 @@ describe('User controller tests', () => {
       username: 'test-user',
       displayName: 'test-user',
       email: 'test@example.com',
+      accountState: 'UNCONFIRMED',
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
     });
@@ -62,6 +63,7 @@ describe('User controller tests', () => {
       username: 'test-user',
       displayName: 'test-user',
       email: 'test2@example.com',
+      accountState: 'UNCONFIRMED',
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
     });
@@ -83,6 +85,7 @@ describe('User controller tests', () => {
       username: 'test-user',
       displayName: 'new display name',
       email: 'test@example.com',
+      accountState: 'UNCONFIRMED',
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
     });
