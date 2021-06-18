@@ -1,6 +1,7 @@
 import { HttpException } from '@nws/core';
 import {
   AllowNull,
+  BelongsToMany,
   Column,
   DataType,
   DefaultScope,
@@ -10,6 +11,7 @@ import {
   ValidationFailed,
 } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
+import { Group } from './groups.model';
 
 export enum UserAccountState {
   UNCONFIRMED = 'UNCONFIRMED',
@@ -32,11 +34,11 @@ export type UserCreationAttributes = Optional<
 >;
 
 @DefaultScope(() => ({
-  attributes: { exclude: ['password'] }, // auto exclude password from requests
+  attributes: { exclude: ['password'] },
 }))
 @Table({
-  timestamps: true, // add createdAt and updatedAt
-  tableName: 'users', // table name in db
+  timestamps: true,
+  tableName: 'users',
 })
 export class User extends Model<UserAttributes, UserCreationAttributes> {
   @Column({
@@ -77,6 +79,9 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
     defaultValue: UserAccountState.UNCONFIRMED,
   })
   public accountState: UserAccountState;
+
+  @BelongsToMany(() => Group, 'users_groups', 'userId', 'groupId')
+  groups: Group[];
 
   @ValidationFailed
   static afterValidateHook(instance: any, options: any, error: any) {

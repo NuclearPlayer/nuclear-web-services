@@ -1,11 +1,12 @@
 import bcrypt from 'bcrypt';
-
 import { HttpException } from '@nws/core';
-import { CreateUserDto } from 'dtos/users.dto';
-import { User } from '../models/users.model';
-import { Service } from '@nws/core/src/types';
+import { CrudService } from '@nws/core/src/types';
 
-export class UserService implements Service<User, CreateUserDto> {
+import { CreateUserDto } from '../dtos/users.dto';
+import { User } from '../models/users.model';
+import { Group } from '../models/groups.model';
+
+export class UserService implements CrudService<User, CreateUserDto> {
   public users = User;
 
   public findAll() {
@@ -14,6 +15,10 @@ export class UserService implements Service<User, CreateUserDto> {
 
   public findOneById(id: string) {
     return this.users.findByPk(id);
+  }
+
+  public async findUserGroups(id: string) {
+    return (await this.users.findByPk(id, { include: [Group] }))?.groups;
   }
 
   public async create(data: CreateUserDto) {
