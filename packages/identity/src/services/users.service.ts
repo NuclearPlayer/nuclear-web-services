@@ -17,6 +17,10 @@ export class UserService implements CrudService<User, CreateUserDto> {
     return this.users.findByPk(id);
   }
 
+  public findOneByUsername(username: string) {
+    return this.users.findOne({ where: { username }, attributes: { include: ['password'] } });
+  }
+
   public async findUserGroups(id: string) {
     return (await this.users.findByPk(id, { include: [Group] }))?.groups;
   }

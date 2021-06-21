@@ -4,11 +4,13 @@ import helmet from 'helmet';
 import express from 'express';
 import hpp from 'hpp';
 import morgan from 'morgan';
+import passport from 'passport';
 import { Logger } from '@nws/core';
 import { Route } from '@nws/core/src/types';
 import { errorMiddleware } from '@nws/core/src/middleware';
 
 import { sequelize } from './database';
+import { initAuthMiddleware } from './middleware/auth.middleware';
 
 class App {
   public app: express.Application;
@@ -42,6 +44,8 @@ class App {
     this.app.use(compression());
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(passport.initialize());
+    initAuthMiddleware();
   }
 
   public listen() {

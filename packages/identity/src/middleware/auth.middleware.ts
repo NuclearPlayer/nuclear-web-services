@@ -1,30 +1,75 @@
-import jwt from 'jsonwebtoken';
-import { NextFunction, Response } from 'express';
 import { HttpException } from '@nws/core';
+import { omit } from 'lodash';
+import bcrypt from 'bcrypt';
+import passport from 'passport';
+import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
+import { Strategy as LocalStrategy } from 'passport-local';
 
-import { AuthenticatedRequest, JWTData } from '../types';
 import { JWT_SECRET } from '../consts';
 import { UserService } from '../services/users.service';
 
-export const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  try {
-    const { authorization } = req.headers;
-    const token = authorization?.split(' ')[1];
+export const initAuthMiddleware = () => {
+  const opts = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: JWT_SECRET,
+  };
 
-    if (token) {
-      const secret = JWT_SECRET;
-      const { id } = jwt.verify(token, secret) as JWTData;
+  passport.use(
+    'jwt',
+    new JwtStrategy(opts, async (payload, done) => {
+      const { id } = payload;
       const findUser = await new UserService().findOneById(id);
       if (findUser) {
-        req.user = findUser;
-        next();
+        return done(null, findUser);
       } else {
-        next(new HttpException(401, 'Invalid authentication token'));
+        return done('User does not exist', false);
       }
-    } else {
-      next(new HttpException(401, 'Authentication token missing'));
-    }
-  } catch (e) {
-    next(new HttpException(401, 'Token expired'));
-  }
+    }),
+  );
+
+  passport.use(
+    'signup',
+    new LocalStrategy(
+      {
+        usernameField: 'username',
+        passwordField: 'password',
+        passReqToCallback: true,
+      },
+      async (req, username, password, done) => {
+        try {
+          const { email } = req.body;
+          const user = await new UserService().create({ email, username, password });
+
+          return done(null, omit(user.toJSON(), 'password'));
+        } catch (error) {
+          done(error);
+        }
+      },
+    ),
+  );
+
+  passport.use(
+    'signin',
+    new LocalStrategy(async (username, password, done) => {
+      try {
+        const user = await new UserService().findOneByUsername(username);
+
+        const hasValidPassword = user && (await bcrypt.compare(password, user.password));
+
+        if (user && hasValidPassword) {
+          return done(null, omit(user.toJSON(), 'password'));
+        } else {
+          throw new HttpException(401, 'Incorrect username or password');
+        }
+      } catch (error) {
+        done(error);
+      }
+    }),
+  );
 };
+
+export const authMiddleware = passport.authenticate('jwt', { session: false });
+
+export const signUpMiddleware = passport.authenticate('signup', { session: false });
+
+export const signInMiddleware = passport.authenticate('signin', { session: false });

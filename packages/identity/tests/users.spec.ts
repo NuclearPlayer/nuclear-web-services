@@ -1,10 +1,12 @@
 import supertest from 'supertest';
+import jwt from 'jsonwebtoken';
 import { UuidRegex } from '@nws/core/src/regex';
 
 import App from '../src/app';
 import { User } from '../src/models/users.model';
 import { UsersRoute } from '../src/routes/users.route';
 import { UserService } from '../src/services/users.service';
+import { JWT_SECRET } from '../src/consts';
 
 describe('User controller tests', () => {
   let app = new App([new UsersRoute()]);
@@ -18,7 +20,7 @@ describe('User controller tests', () => {
     await app.getDb().query('DELETE FROM Users');
   });
 
-  it('get user (200)', async () => {
+  it('tries to get a user (200)', async () => {
     const newUser = await userService.create({
       username: 'test-user',
       email: 'test@example.com',
@@ -45,13 +47,13 @@ describe('User controller tests', () => {
     expect((row as User).password).toEqual(expect.stringContaining('$2b$10$'));
   });
 
-  it('get user (404)', async () => {
+  it('tries to get nonexistent user (404)', async () => {
     await supertest(app.getServer())
       .get('/users/4f81d38f-692a-40ec-840b-080ceb5cd730')
       .expect(404, { message: 'User with id 4f81d38f-692a-40ec-840b-080ceb5cd730 not found' });
   });
 
-  it('post user', async () => {
+  it('tries to post user (200)', async () => {
     const { body, statusCode } = await supertest(app.getServer())
       .post('/users')
       .send({ username: 'test-user', email: 'test2@example.com', password: 'abc' });
@@ -69,15 +71,18 @@ describe('User controller tests', () => {
     });
   });
 
-  it('patch user', async () => {
+  it('tries to patch the same user (200)', async () => {
     const newUser = await userService.create({
       username: 'test-user',
       email: 'test@example.com',
       password: 'abc',
     });
 
+    const token = jwt.sign({ id: newUser.id }, JWT_SECRET);
+
     const { body, statusCode } = await supertest(app.getServer())
       .patch(`/users/${newUser.id}`)
+      .set('Authorization', `Bearer ${token}`)
       .send({ displayName: 'new display name' });
     expect(statusCode).toEqual(200);
     expect(body).toEqual({
@@ -91,11 +96,43 @@ describe('User controller tests', () => {
     });
   });
 
-  it('patch user (404)', async () => {
+  it('tries to patch another user (403)', async () => {
+    const newUser = await userService.create({
+      username: 'test-user',
+      email: 'test@example.com',
+      password: 'abc',
+    });
+
+    const newUser2 = await userService.create({
+      username: 'test-user-2',
+      email: 'test2@example.com',
+      password: 'abc',
+    });
+
+    const token = jwt.sign({ id: newUser2.id }, JWT_SECRET);
+
+    const { body, statusCode } = await supertest(app.getServer())
+      .patch(`/users/${newUser.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ displayName: 'new display name' });
+    expect(statusCode).toEqual(403);
+    expect(body).toEqual({ message: 'This resource is inaccessible for the current user' });
+  });
+
+  it('tries to patch nonexistent user (403)', async () => {
+    const newUser = await userService.create({
+      username: 'test-user',
+      email: 'test@example.com',
+      password: 'abc',
+    });
+
+    const token = jwt.sign({ id: newUser.id }, JWT_SECRET);
+
     const { body, statusCode } = await supertest(app.getServer())
       .patch(`/users/4f81d38f-692a-40ec-840b-080ceb5cd730`)
+      .set('Authorization', `Bearer ${token}`)
       .send({ displayName: 'new display name' });
-    expect(statusCode).toEqual(404);
-    expect(body).toEqual({ message: 'User with id 4f81d38f-692a-40ec-840b-080ceb5cd730 not found' });
+    expect(statusCode).toEqual(403);
+    expect(body).toEqual({ message: 'This resource is inaccessible for the current user' });
   });
 });

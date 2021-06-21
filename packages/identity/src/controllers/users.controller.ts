@@ -4,7 +4,6 @@ import { omit } from 'lodash';
 
 import { CreateUserDto } from '../dtos/users.dto';
 import { UserService } from '../services/users.service';
-import { AuthenticatedRequest } from '../types';
 
 export class UsersController {
   public userService = new UserService();
@@ -43,7 +42,7 @@ export class UsersController {
     }
   };
 
-  public patchUser = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  public patchUser = async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
     const data: CreateUserDto = req.body;
 
