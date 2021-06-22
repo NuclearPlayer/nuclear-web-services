@@ -10,7 +10,9 @@ export interface Route {
   initializeRoutes(): void;
 }
 
-export interface Service<T, CreateDto> {
+export interface Service {}
+
+export interface CrudService<T, CreateDto> extends Service {
   findAll(): Promise<T[]>;
   findOneById(id: string): Promise<T | null>;
   create(data: CreateDto): Promise<T>;

@@ -2,10 +2,11 @@ import { Sequelize } from 'sequelize-typescript';
 import { Environment } from '@nws/core/src/types';
 import { Logger } from '@nws/core';
 
+import { Group } from '../models/groups.model';
 import { User } from '../models/users.model';
 import { config } from './config';
 
-const env = (process.env.NODE_ENV || 'development') as Environment;
+const env: Environment = (process.env.NODE_ENV || 'development') as Environment;
 let sequelize: Sequelize;
 
 if (env === 'production') {
@@ -31,6 +32,6 @@ sequelize
     Logger.info(`🔴 Unable to connect to the database: ${error}.`);
   });
 
-sequelize.addModels([User]);
+sequelize.addModels([User, Group]);
 
 export { sequelize };

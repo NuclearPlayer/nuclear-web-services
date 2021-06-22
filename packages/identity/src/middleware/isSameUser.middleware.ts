@@ -1,0 +1,23 @@
+import { Request, Response, NextFunction } from 'express';
+import { HttpException } from '@nws/core';
+
+import { AuthenticatedRequest } from '../types';
+
+export const isSameUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { user } = req as AuthenticatedRequest;
+    const { id } = req.params;
+
+    if (!user) {
+      return next(new HttpException(403, 'Unauthenticated'));
+    }
+
+    if (user.id !== id) {
+      return next(new HttpException(403, 'This resource is inaccessible for the current user'));
+    }
+
+    return next();
+  } catch (e) {
+    return next(new HttpException(401, 'Unauthorized'));
+  }
+};

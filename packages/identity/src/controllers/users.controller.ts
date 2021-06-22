@@ -1,8 +1,8 @@
 import { HttpException } from '@nws/core';
-import { CreateUserDto } from 'dtos/users.dto';
 import { NextFunction, Request, Response } from 'express';
 import { omit } from 'lodash';
 
+import { CreateUserDto } from '../dtos/users.dto';
 import { UserService } from '../services/users.service';
 
 export class UsersController {
