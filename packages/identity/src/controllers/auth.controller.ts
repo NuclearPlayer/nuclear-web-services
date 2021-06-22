@@ -8,7 +8,7 @@ export class AuthController {
   public authService = new AuthService();
 
   public signUp = async (req: Request, res: Response, next: NextFunction) => {
-    res.json(req.user);
+    res.status(201).json(req.user);
   };
 
   public signIn = async (req: Request, res: Response, next: NextFunction) => {

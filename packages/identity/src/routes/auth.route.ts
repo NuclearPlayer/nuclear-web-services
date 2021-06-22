@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { Route } from '@nws/core/src/types';
-import passport from 'passport';
 import { AuthController } from '../controllers/auth.controller';
 import { signInMiddleware, signUpMiddleware } from '../middleware/auth.middleware';
 
