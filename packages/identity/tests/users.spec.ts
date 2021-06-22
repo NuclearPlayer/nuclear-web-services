@@ -7,7 +7,7 @@ import { User } from '../src/models/users.model';
 import { UsersRoute } from '../src/routes/users.route';
 import { UserService } from '../src/services/users.service';
 import { GroupService } from '../src/services/groups.service';
-import { userToJson } from './utils';
+import { createGroup, createNewUser, userToJson } from './utils';
 
 describe('Users route tests', () => {
   process.env.JWT_SECRET = 'jwtsecret';
@@ -24,11 +24,7 @@ describe('Users route tests', () => {
   });
 
   it('tries to get all users as non-admin (403)', async () => {
-    const newUser = await userService.create({
-      username: 'test-user',
-      email: 'test@example.com',
-      password: 'abc',
-    });
+    const newUser = await createNewUser(userService);
 
     const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET as string);
 
@@ -39,19 +35,12 @@ describe('Users route tests', () => {
   });
 
   it('tries to get all users as admin (200)', async () => {
-    const newUser = await userService.create({
-      username: 'test-user',
-      email: 'test@example.com',
-      password: 'abc',
-    });
-    const newUser2 = await userService.create({
+    const newUser = await createNewUser(userService);
+    const newUser2 = await createNewUser(userService, {
       username: 'test-user-2',
       email: 'test2@example.com',
-      password: 'abc',
     });
-    const newGroup = await groupService.create({
-      name: 'admin',
-    });
+    const newGroup = await createGroup(groupService);
     await userService.addToGroup(newUser.id, newGroup.name);
     const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET as string);
 
@@ -62,11 +51,7 @@ describe('Users route tests', () => {
   });
 
   it('tries to get a user (200)', async () => {
-    const newUser = await userService.create({
-      username: 'test-user',
-      email: 'test@example.com',
-      password: 'abc',
-    });
+    const newUser = await createNewUser(userService);
 
     const { body, statusCode } = await supertest(app.getServer()).get(`/users/${newUser.id}`);
 
@@ -87,14 +72,8 @@ describe('Users route tests', () => {
   });
 
   it('tries to post user as admin (200)', async () => {
-    const newUser = await userService.create({
-      username: 'test-user',
-      email: 'test@example.com',
-      password: 'abc',
-    });
-    const newGroup = await groupService.create({
-      name: 'admin',
-    });
+    const newUser = await createNewUser(userService);
+    const newGroup = await createGroup(groupService);
     await userService.addToGroup(newUser.id, newGroup.name);
     const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET as string);
 
@@ -117,12 +96,7 @@ describe('Users route tests', () => {
   });
 
   it('tries to patch the same user (200)', async () => {
-    const newUser = await userService.create({
-      username: 'test-user',
-      email: 'test@example.com',
-      password: 'abc',
-    });
-
+    const newUser = await createNewUser(userService);
     const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET as string);
 
     const { body, statusCode } = await supertest(app.getServer())
@@ -142,16 +116,10 @@ describe('Users route tests', () => {
   });
 
   it('tries to patch another user (403)', async () => {
-    const newUser = await userService.create({
-      username: 'test-user',
-      email: 'test@example.com',
-      password: 'abc',
-    });
-
-    const newUser2 = await userService.create({
+    const newUser = await createNewUser(userService);
+    const newUser2 = await createNewUser(userService, {
       username: 'test-user-2',
       email: 'test2@example.com',
-      password: 'abc',
     });
 
     const token = jwt.sign({ id: newUser2.id }, process.env.JWT_SECRET as string);
@@ -165,12 +133,7 @@ describe('Users route tests', () => {
   });
 
   it('tries to patch nonexistent user (403)', async () => {
-    const newUser = await userService.create({
-      username: 'test-user',
-      email: 'test@example.com',
-      password: 'abc',
-    });
-
+    const newUser = await createNewUser(userService);
     const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET as string);
 
     const { body, statusCode } = await supertest(app.getServer())
@@ -196,15 +159,8 @@ describe('Users service tests', () => {
   });
 
   it('adds a group to a user', async () => {
-    const newUser = await userService.create({
-      username: 'test-user',
-      email: 'test@example.com',
-      password: 'abc',
-    });
-
-    const newGroup = await groupService.create({
-      name: 'admin',
-    });
+    const newUser = await createNewUser(userService);
+    const newGroup = await createGroup(groupService);
 
     await userService.addToGroup(newUser.id, newGroup.name);
 
