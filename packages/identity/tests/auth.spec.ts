@@ -3,6 +3,7 @@ import App from '../src/app';
 import { AuthRoute } from '../src/routes/auth.route';
 
 describe('Auth controller tests', () => {
+  process.env.JWT_SECRET = 'jwtsecret';
   let app = new App([new AuthRoute()]);
 
   beforeAll(() => {
@@ -58,5 +59,15 @@ describe('Auth controller tests', () => {
         updatedAt: expect.any(String),
       },
     });
+  });
+
+  it('tries to sign in with invalid credentials (401)', async () => {
+    const { body, statusCode } = await supertest(app.getServer()).post('/signin').send({
+      username: 'test-user',
+      password: 'abc',
+    });
+
+    expect(statusCode).toEqual(401);
+    expect(body).toEqual({ message: 'Incorrect username or password' });
   });
 });

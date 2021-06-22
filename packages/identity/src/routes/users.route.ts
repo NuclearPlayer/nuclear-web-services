@@ -21,7 +21,7 @@ export class UsersRoute implements Route {
   }
 
   initializeRoutes() {
-    this.router.get(this.makeRoute(''), this.usersController.getUsers);
+    this.router.get(this.makeRoute(''), authMiddleware, isAdmin, this.usersController.getUsers);
 
     this.router.get(this.makeRoute(`/:id(${UuidRegex})`), this.usersController.getUserById);
 

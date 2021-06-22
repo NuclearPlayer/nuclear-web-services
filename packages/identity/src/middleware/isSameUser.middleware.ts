@@ -9,15 +9,15 @@ export const isSameUser = async (req: Request, res: Response, next: NextFunction
     const { id } = req.params;
 
     if (!user) {
-      return next(new HttpException(403, 'Unauthenticated'));
+      return next(new HttpException(401, 'Unauthenticated'));
     }
 
     if (user.id !== id) {
-      return next(new HttpException(403, 'This resource is inaccessible for the current user'));
+      return next(new HttpException(403, 'Forbidden'));
     }
 
     return next();
   } catch (e) {
-    return next(new HttpException(401, 'Unauthorized'));
+    return next(new HttpException(403, 'Forbidden'));
   }
 };

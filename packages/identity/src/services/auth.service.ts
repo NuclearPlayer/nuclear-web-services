@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 
 import { User } from '../models/users.model';
 import { UserService } from './users.service';
-import { JWT_SECRET } from '../consts';
 import { omit } from 'lodash';
 
 export class AuthService implements Service {
@@ -12,7 +11,7 @@ export class AuthService implements Service {
 
   createToken(user: User) {
     const dataStoredInToken = { id: user.id };
-    const secret: string = JWT_SECRET;
+    const secret: string = process.env.JWT_SECRET as string;
     const expiresIn: number = 60 * 60;
 
     return {

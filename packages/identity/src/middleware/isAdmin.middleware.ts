@@ -9,16 +9,16 @@ export const isAdmin = async (req: Request, res: Response, next: NextFunction) =
     const { user } = req as AuthenticatedRequest;
 
     if (!user) {
-      return next(new HttpException(403, 'Unauthenticated'));
+      return next(new HttpException(401, 'Unauthenticated'));
     }
 
     const groups = (await new UserService().findUserGroups(user.id))?.map((group) => group.name);
     if (!groups?.includes(UserGroup.ADMIN)) {
-      return next(new HttpException(401, 'Unauthorized'));
+      return next(new HttpException(403, 'Forbidden'));
     }
 
     return next();
   } catch (e) {
-    return next(new HttpException(401, 'Unauthorized'));
+    return next(new HttpException(403, 'Forbidden'));
   }
 };

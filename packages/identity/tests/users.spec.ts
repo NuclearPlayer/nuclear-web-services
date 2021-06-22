@@ -7,9 +7,10 @@ import { User } from '../src/models/users.model';
 import { UsersRoute } from '../src/routes/users.route';
 import { UserService } from '../src/services/users.service';
 import { GroupService } from '../src/services/groups.service';
-import { JWT_SECRET } from '../src/consts';
+import { userToJson } from './utils';
 
 describe('Users route tests', () => {
+  process.env.JWT_SECRET = 'jwtsecret';
   let app = new App([new UsersRoute()]);
   let userService = new UserService();
   let groupService = new GroupService();
@@ -20,6 +21,44 @@ describe('Users route tests', () => {
 
   beforeEach(async () => {
     await app.getDb().sync({ force: true });
+  });
+
+  it('tries to get all users as non-admin (403)', async () => {
+    const newUser = await userService.create({
+      username: 'test-user',
+      email: 'test@example.com',
+      password: 'abc',
+    });
+
+    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET as string);
+
+    const { body, statusCode } = await supertest(app.getServer()).get(`/users`).set('Authorization', `Bearer ${token}`);
+
+    expect(statusCode).toEqual(403);
+    expect(body).toEqual({ message: 'Forbidden' });
+  });
+
+  it('tries to get all users as admin (200)', async () => {
+    const newUser = await userService.create({
+      username: 'test-user',
+      email: 'test@example.com',
+      password: 'abc',
+    });
+    const newUser2 = await userService.create({
+      username: 'test-user-2',
+      email: 'test2@example.com',
+      password: 'abc',
+    });
+    const newGroup = await groupService.create({
+      name: 'admin',
+    });
+    await userService.addToGroup(newUser.id, newGroup.name);
+    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET as string);
+
+    const { body, statusCode } = await supertest(app.getServer()).get(`/users`).set('Authorization', `Bearer ${token}`);
+
+    expect(statusCode).toEqual(200);
+    expect(body).toEqual([userToJson(newUser), userToJson(newUser2)]);
   });
 
   it('tries to get a user (200)', async () => {
@@ -33,15 +72,7 @@ describe('Users route tests', () => {
 
     expect(statusCode).toEqual(200);
 
-    expect(body).toEqual({
-      id: newUser.id,
-      username: 'test-user',
-      displayName: 'test-user',
-      email: 'test@example.com',
-      accountState: 'UNCONFIRMED',
-      createdAt: expect.any(String),
-      updatedAt: expect.any(String),
-    });
+    expect(body).toEqual(userToJson(newUser));
 
     expect(body.password).toBeUndefined();
 
@@ -65,7 +96,7 @@ describe('Users route tests', () => {
       name: 'admin',
     });
     await userService.addToGroup(newUser.id, newGroup.name);
-    const token = jwt.sign({ id: newUser.id }, JWT_SECRET);
+    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET as string);
 
     const { body, statusCode } = await supertest(app.getServer())
       .post('/users')
@@ -92,7 +123,7 @@ describe('Users route tests', () => {
       password: 'abc',
     });
 
-    const token = jwt.sign({ id: newUser.id }, JWT_SECRET);
+    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET as string);
 
     const { body, statusCode } = await supertest(app.getServer())
       .patch(`/users/${newUser.id}`)
@@ -123,14 +154,14 @@ describe('Users route tests', () => {
       password: 'abc',
     });
 
-    const token = jwt.sign({ id: newUser2.id }, JWT_SECRET);
+    const token = jwt.sign({ id: newUser2.id }, process.env.JWT_SECRET as string);
 
     const { body, statusCode } = await supertest(app.getServer())
       .patch(`/users/${newUser.id}`)
       .set('Authorization', `Bearer ${token}`)
       .send({ displayName: 'new display name' });
     expect(statusCode).toEqual(403);
-    expect(body).toEqual({ message: 'This resource is inaccessible for the current user' });
+    expect(body).toEqual({ message: 'Forbidden' });
   });
 
   it('tries to patch nonexistent user (403)', async () => {
@@ -140,14 +171,14 @@ describe('Users route tests', () => {
       password: 'abc',
     });
 
-    const token = jwt.sign({ id: newUser.id }, JWT_SECRET);
+    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET as string);
 
     const { body, statusCode } = await supertest(app.getServer())
       .patch(`/users/4f81d38f-692a-40ec-840b-080ceb5cd730`)
       .set('Authorization', `Bearer ${token}`)
       .send({ displayName: 'new display name' });
     expect(statusCode).toEqual(403);
-    expect(body).toEqual({ message: 'This resource is inaccessible for the current user' });
+    expect(body).toEqual({ message: 'Forbidden' });
   });
 });
 
