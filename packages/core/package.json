@@ -18,6 +18,7 @@
     "url": "https://github.com/NuclearPlayer/nuclear-web-services/issues"
   },
   "dependencies": {
+    "sequelize-typescript": "^2.1.0",
     "winston": "^3.3.3"
   }
 }
