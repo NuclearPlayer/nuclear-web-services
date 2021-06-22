@@ -1,5 +1,7 @@
-import { AllowNull, Column, DataType, Model, Table } from 'sequelize-typescript';
+import { AllowNull, BelongsToMany, Column, DataType, Model, Table } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
+
+import { User } from './users.model';
 
 export interface GroupAttributes {
   id: string;
@@ -25,4 +27,7 @@ export class Group extends Model<GroupAttributes, GroupCreationAttributes> {
     type: DataType.STRING(),
   })
   public name: string;
+
+  @BelongsToMany(() => User, 'users_groups', 'groupId', 'userId')
+  users: User[];
 }

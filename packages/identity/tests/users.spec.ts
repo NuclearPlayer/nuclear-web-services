@@ -6,18 +6,20 @@ import App from '../src/app';
 import { User } from '../src/models/users.model';
 import { UsersRoute } from '../src/routes/users.route';
 import { UserService } from '../src/services/users.service';
+import { GroupService } from '../src/services/groups.service';
 import { JWT_SECRET } from '../src/consts';
 
-describe('User controller tests', () => {
+describe('Users route tests', () => {
   let app = new App([new UsersRoute()]);
   let userService = new UserService();
+  let groupService = new GroupService();
 
   beforeAll(() => {
     app.connectToDatabase();
   });
 
   beforeEach(async () => {
-    await app.getDb().query('DELETE FROM Users');
+    await app.getDb().sync({ force: true });
   });
 
   it('tries to get a user (200)', async () => {
@@ -53,9 +55,21 @@ describe('User controller tests', () => {
       .expect(404, { message: 'User with id 4f81d38f-692a-40ec-840b-080ceb5cd730 not found' });
   });
 
-  it('tries to post user (200)', async () => {
+  it('tries to post user as admin (200)', async () => {
+    const newUser = await userService.create({
+      username: 'test-user',
+      email: 'test@example.com',
+      password: 'abc',
+    });
+    const newGroup = await groupService.create({
+      name: 'admin',
+    });
+    await userService.addToGroup(newUser.id, newGroup.name);
+    const token = jwt.sign({ id: newUser.id }, JWT_SECRET);
+
     const { body, statusCode } = await supertest(app.getServer())
       .post('/users')
+      .set('Authorization', `Bearer ${token}`)
       .send({ username: 'test-user', email: 'test2@example.com', password: 'abc' });
 
     expect(statusCode).toEqual(201);
@@ -134,5 +148,37 @@ describe('User controller tests', () => {
       .send({ displayName: 'new display name' });
     expect(statusCode).toEqual(403);
     expect(body).toEqual({ message: 'This resource is inaccessible for the current user' });
+  });
+});
+
+describe('Users service tests', () => {
+  let app = new App([new UsersRoute()]);
+  let userService = new UserService();
+  let groupService = new GroupService();
+
+  beforeAll(() => {
+    app.connectToDatabase();
+  });
+
+  beforeEach(async () => {
+    await app.getDb().sync({ force: true });
+  });
+
+  it('adds a group to a user', async () => {
+    const newUser = await userService.create({
+      username: 'test-user',
+      email: 'test@example.com',
+      password: 'abc',
+    });
+
+    const newGroup = await groupService.create({
+      name: 'admin',
+    });
+
+    await userService.addToGroup(newUser.id, newGroup.name);
+
+    const groups = await userService.findUserGroups(newUser.id);
+
+    expect(groups).toEqual([expect.objectContaining({ name: 'admin' })]);
   });
 });

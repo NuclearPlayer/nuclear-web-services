@@ -6,7 +6,7 @@ import { Group } from '../models/groups.model';
 import { User } from '../models/users.model';
 import { config } from './config';
 
-const env = (process.env.NODE_ENV || 'development') as Environment;
+const env: Environment = (process.env.NODE_ENV || 'development') as Environment;
 let sequelize: Sequelize;
 
 if (env === 'production') {

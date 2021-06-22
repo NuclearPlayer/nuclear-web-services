@@ -16,7 +16,9 @@ export const isAdmin = async (req: Request, res: Response, next: NextFunction) =
     if (!groups?.includes(UserGroup.ADMIN)) {
       return next(new HttpException(401, 'Unauthorized'));
     }
+
+    return next();
   } catch (e) {
-    next(new HttpException(401, 'Unauthorized'));
+    return next(new HttpException(401, 'Unauthorized'));
   }
 };

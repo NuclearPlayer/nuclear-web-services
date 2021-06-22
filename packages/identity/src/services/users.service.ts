@@ -8,6 +8,7 @@ import { Group } from '../models/groups.model';
 
 export class UserService implements CrudService<User, CreateUserDto> {
   public users = User;
+  public groups = Group;
 
   public findAll() {
     return this.users.findAll();
@@ -44,5 +45,22 @@ export class UserService implements CrudService<User, CreateUserDto> {
     }
     await this.users.update(data, { where: { id } });
     return this.findOneById(id);
+  }
+
+  public async addToGroup(id: string, groupName: string) {
+    const group = await this.groups.findOne({ where: { name: groupName } });
+    if (!group) {
+      throw new HttpException(404, `${groupName} group does not exist`);
+    }
+    const user = await this.users.findByPk(id, { include: [Group] });
+
+    if (!user) {
+      throw new HttpException(404, `User with id ${id} does not exist`);
+    }
+
+    // @ts-ignore
+    await user.addGroup(group);
+
+    return user.save();
   }
 }

@@ -25,7 +25,7 @@ export class UsersRoute implements Route {
 
     this.router.get(this.makeRoute(`/:id(${UuidRegex})`), this.usersController.getUserById);
 
-    this.router.post(this.makeRoute(''), isAdmin, this.usersController.postUser);
+    this.router.post(this.makeRoute(''), authMiddleware, isAdmin, this.usersController.postUser);
 
     this.router.patch(this.makeRoute(`/:id(${UuidRegex})`), authMiddleware, isSameUser, this.usersController.patchUser);
   }

@@ -13,9 +13,11 @@ export const isSameUser = async (req: Request, res: Response, next: NextFunction
     }
 
     if (user.id !== id) {
-      next(new HttpException(403, 'This resource is inaccessible for the current user'));
+      return next(new HttpException(403, 'This resource is inaccessible for the current user'));
     }
+
+    return next();
   } catch (e) {
-    next(new HttpException(401, 'Unauthorized'));
+    return next(new HttpException(401, 'Unauthorized'));
   }
 };

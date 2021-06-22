@@ -11,6 +11,7 @@ import {
   ValidationFailed,
 } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
+
 import { Group } from './groups.model';
 
 export enum UserAccountState {
