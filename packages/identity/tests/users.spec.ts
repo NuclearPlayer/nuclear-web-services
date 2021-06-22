@@ -23,6 +23,15 @@ describe('Users route tests', () => {
     await app.getDb().sync({ force: true });
   });
 
+  it('tries to get all users without a token (401)', async () => {
+    const newUser = await createNewUser(userService);
+
+    const { body, statusCode } = await supertest(app.getServer()).get(`/users`);
+
+    expect(statusCode).toEqual(401);
+    expect(body).toEqual({});
+  });
+
   it('tries to get all users as non-admin (403)', async () => {
     const newUser = await createNewUser(userService);
 
@@ -56,11 +65,8 @@ describe('Users route tests', () => {
     const { body, statusCode } = await supertest(app.getServer()).get(`/users/${newUser.id}`);
 
     expect(statusCode).toEqual(200);
-
     expect(body).toEqual(userToJson(newUser));
-
     expect(body.password).toBeUndefined();
-
     const [[row]] = await app.getDb().query(`SELECT password FROM Users WHERE id='${newUser.id}'`);
     expect((row as User).password).toEqual(expect.stringContaining('$2b$10$'));
   });

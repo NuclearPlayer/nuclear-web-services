@@ -14,6 +14,8 @@
     "start": "cross-env NODE_ENV=production ts-node src/server.ts",
     "build": "tsc",
     "dev": "cross-env NODE_ENV=development nodemon",
+    "test": "cross-env NODE_ENV=test jest tests",
+    "coverage": "cross-env NODE_ENV=test jest tests --coverage",
     "lint": "eslint src --ext .ts",
     "lint:fix": "npm run lint -- --fix"
   },

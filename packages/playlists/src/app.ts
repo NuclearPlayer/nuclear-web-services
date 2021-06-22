@@ -6,6 +6,9 @@ import hpp from 'hpp';
 import morgan from 'morgan';
 import { Logger } from '@nws/core';
 import { Route } from '@nws/core/src/types';
+import { errorMiddleware } from '@nws/core/src/middleware';
+
+import { sequelize } from './database';
 
 class App {
   public app: express.Application;
@@ -18,6 +21,7 @@ class App {
     this.env = process.env.NODE_ENV || 'development';
 
     this.initializeMiddleware();
+    this.app.use(errorMiddleware);
   }
 
   private initializeMiddleware() {
@@ -43,6 +47,14 @@ class App {
 
   public getServer() {
     return this.app;
+  }
+
+  public getDb() {
+    return sequelize;
+  }
+
+  public connectToDatabase() {
+    sequelize.sync({ force: false });
   }
 }
 
