@@ -6,6 +6,7 @@ import { User } from './users.model';
 export interface GroupAttributes {
   id: string;
   name: string;
+  users: User[];
 }
 
 export type GroupCreationAttributes = Optional<GroupAttributes, 'id'>;

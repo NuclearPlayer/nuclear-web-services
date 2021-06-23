@@ -27,6 +27,7 @@ export interface UserAttributes {
   email: string;
   password: string;
   accountState: UserAccountState;
+  groups: Group[];
 }
 
 export type UserCreationAttributes = Optional<
