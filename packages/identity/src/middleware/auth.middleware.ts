@@ -21,7 +21,7 @@ export const initAuthMiddleware = () => {
       if (findUser) {
         return done(null, findUser);
       } else {
-        return done('User does not exist', false);
+        return done(null, false);
       }
     }),
   );

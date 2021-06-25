@@ -9,7 +9,7 @@ export interface GroupAttributes {
   users: User[];
 }
 
-export type GroupCreationAttributes = Optional<GroupAttributes, 'id'>;
+export type GroupCreationAttributes = Optional<GroupAttributes, 'id' | 'users'>;
 
 @Table({
   timestamps: true,

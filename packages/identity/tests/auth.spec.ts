@@ -1,9 +1,14 @@
 import supertest from 'supertest';
+import jwt from 'jsonwebtoken';
+
 import App from '../src/app';
 import { AuthRoute } from '../src/routes/auth.route';
+import { createNewUser } from './utils';
+import { UserService } from '../src/services/users.service';
 
 describe('Auth controller tests', () => {
   process.env.JWT_SECRET = 'jwtsecret';
+  let userService = new UserService();
   let app = new App([new AuthRoute()]);
 
   beforeAll(() => {

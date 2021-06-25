@@ -24,7 +24,7 @@ describe('Users route tests', () => {
   });
 
   it('tries to get all users without a token (401)', async () => {
-    const newUser = await createNewUser(userService);
+    await createNewUser(userService);
 
     const { body, statusCode } = await supertest(app.getServer()).get(`/users`);
 
@@ -59,22 +59,45 @@ describe('Users route tests', () => {
     expect(body).toEqual([userToJson(newUser), userToJson(newUser2)]);
   });
 
-  it('tries to get a user (200)', async () => {
-    const newUser = await createNewUser(userService);
-
-    const { body, statusCode } = await supertest(app.getServer()).get(`/users/${newUser.id}`);
-
-    expect(statusCode).toEqual(200);
-    expect(body).toEqual(userToJson(newUser));
-    expect(body.password).toBeUndefined();
-    const [[row]] = await app.getDb().query(`SELECT password FROM Users WHERE id='${newUser.id}'`);
-    expect((row as User).password).toEqual(expect.stringContaining('$2b$10$'));
-  });
-
   it('tries to get nonexistent user (404)', async () => {
     await supertest(app.getServer())
       .get('/users/4f81d38f-692a-40ec-840b-080ceb5cd730')
       .expect(404, { message: 'User with id 4f81d38f-692a-40ec-840b-080ceb5cd730 not found' });
+  });
+
+  it('tries to get a user for a valid token for its own user (200)', async () => {
+    const newUser = await createNewUser(userService);
+    const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET as string);
+
+    const { body, statusCode } = await supertest(app.getServer())
+      .get(`/users/${newUser.id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(statusCode).toEqual(200);
+    expect(body).toEqual(userToJson(newUser));
+  });
+
+  it('tries to get a user for an invalid token for an existing user (401)', async () => {
+    const newUser = await createNewUser(userService);
+    const token = jwt.sign({ id: newUser.id }, 'invalid secret');
+
+    const { body, statusCode } = await supertest(app.getServer())
+      .get(`/users/${newUser.id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(statusCode).toEqual(401);
+    expect(body).toEqual({});
+  });
+
+  it('tries to get a user for a token for a nonexistent user (401)', async () => {
+    const token = jwt.sign({ id: 'abc' }, process.env.JWT_SECRET as string);
+
+    const { body, statusCode } = await supertest(app.getServer())
+      .get('/users/4f81d38f-692a-40ec-840b-080ceb5cd730')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(statusCode).toEqual(401);
+    expect(body).toEqual({});
   });
 
   it('tries to post user as admin (200)', async () => {
@@ -99,6 +122,9 @@ describe('Users route tests', () => {
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
     });
+    expect(body.password).toBeUndefined();
+    const [[row]] = await app.getDb().query(`SELECT password FROM Users WHERE id='${newUser.id}'`);
+    expect((row as User).password).toEqual(expect.stringContaining('$2b$10$'));
   });
 
   it('tries to patch the same user (200)', async () => {

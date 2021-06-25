@@ -23,7 +23,7 @@ export class UsersRoute implements Route {
   initializeRoutes() {
     this.router.get(this.makeRoute(''), authMiddleware, isAdmin, this.usersController.getUsers);
 
-    this.router.get(this.makeRoute(`/:id(${UuidRegex})`), this.usersController.getUserById);
+    this.router.get(this.makeRoute(`/:id(${UuidRegex})`), authMiddleware, isSameUser, this.usersController.getUserById);
 
     this.router.post(this.makeRoute(''), authMiddleware, isAdmin, this.usersController.postUser);
 
