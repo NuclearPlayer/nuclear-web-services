@@ -7,11 +7,11 @@ export class PlaylistService implements CrudService<Playlist, CreatePlaylistDto>
   public playlists = Playlist;
 
   findAll(): Promise<Playlist[]> {
-    throw new Error('Method not implemented.');
+    return this.playlists.findAll({ include: ['tracks'] });
   }
 
   findOneById(id: string): Promise<Playlist | null> {
-    throw new Error('Method not implemented.');
+    return this.playlists.findByPk(id, { include: ['tracks'] });
   }
 
   async findAllByUserId(userId: string, includePrivate?: boolean) {

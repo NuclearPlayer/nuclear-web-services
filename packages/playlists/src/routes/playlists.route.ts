@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import { UuidRegex } from '@nws/core/src/regex';
 import { Route } from '@nws/core/src/types';
 
 import { PlaylistsController } from '../controllers/playlists.controller';
@@ -20,5 +21,6 @@ export class PlaylistsRoute implements Route {
 
   initializeRoutes() {
     this.router.post(this.makeRoute(''), authMiddleware, this.playlistsController.postPlaylist);
+    this.router.get(this.makeRoute(`/:id(${UuidRegex})`), authMiddleware, this.playlistsController.getPlaylist);
   }
 }
