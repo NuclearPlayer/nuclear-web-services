@@ -1,10 +1,15 @@
+import fetch from 'node-fetch';
 import supertest from 'supertest';
+
 import App from '../src/app';
+import { PlaylistsRoute } from '../src/routes/playlists.routes';
 import { createPlaylist, createToken } from './utils';
+
+jest.mock('node-fetch');
 
 describe('Playlists route tests', () => {
   process.env.JWT_SECRET = 'jwtsecret';
-  let app = new App([]);
+  const app = new App([new PlaylistsRoute()]);
 
   beforeAll(() => {
     app.connectToDatabase();
@@ -12,6 +17,13 @@ describe('Playlists route tests', () => {
 
   beforeEach(async () => {
     await app.getDb().sync({ force: true });
+    //@ts-ignore
+    fetch.mockResolvedValue({
+      json: jest.fn().mockResolvedValue({
+        id: '8281df2b-77b9-4005-9062-566eb9bd1503',
+        username: 'test-user',
+      }),
+    });
   });
 
   it('tries to create a new playlist with a valid token (200)', async () => {
@@ -25,6 +37,8 @@ describe('Playlists route tests', () => {
       name: 'new playlist',
       tracks: [],
       private: false,
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String)
     });
   });
 

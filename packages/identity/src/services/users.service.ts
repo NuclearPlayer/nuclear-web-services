@@ -1,10 +1,11 @@
 import bcrypt from 'bcrypt';
+
 import { HttpException } from '@nws/core';
 import { CrudService } from '@nws/core/src/types';
 
 import { CreateUserDto } from '../dtos/users.dto';
-import { User } from '../models/users.model';
 import { Group } from '../models/groups.model';
+import { User } from '../models/users.model';
 
 export class UserService implements CrudService<User, CreateUserDto> {
   public users = User;

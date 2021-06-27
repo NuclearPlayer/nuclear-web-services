@@ -1,6 +1,7 @@
 import { CrudService } from '@nws/core/src/types';
-import { CreatePlaylistDto } from 'dtos/playlists.dto';
-import { Playlist } from 'models/playlists.model';
+
+import { CreatePlaylistDto } from '../dtos/playlists.dto';
+import { Playlist } from '../models/playlists.model';
 
 export class PlaylistService implements CrudService<Playlist, CreatePlaylistDto> {
   public playlists = Playlist;
@@ -19,9 +20,12 @@ export class PlaylistService implements CrudService<Playlist, CreatePlaylistDto>
   }
 
   create(data: CreatePlaylistDto): Promise<Playlist> {
-    return this.playlists.create({
-      ...data,
-      tracks: [],
-    });
+    return this.playlists.create(
+      {
+        ...data,
+        tracks: [],
+      },
+      { include: ['tracks'] },
+    );
   }
 }

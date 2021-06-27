@@ -1,9 +1,10 @@
-import { Service } from '@nws/core/src/types';
 import jwt from 'jsonwebtoken';
+import { omit } from 'lodash';
+
+import { Service } from '@nws/core/src/types';
 
 import { User } from '../models/users.model';
 import { UserService } from './users.service';
-import { omit } from 'lodash';
 
 export class AuthService implements Service {
   public users = User;

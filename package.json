@@ -32,6 +32,7 @@
     "*.tsx": "eslint --fix"
   },
   "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^2.0.2",
     "@typescript-eslint/parser": "^4.27.0",
     "eslint": "^7.28.0",
     "eslint-config-prettier": "^8.3.0",

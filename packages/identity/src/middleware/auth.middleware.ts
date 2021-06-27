@@ -1,9 +1,10 @@
-import { HttpException } from '@nws/core';
-import { omit } from 'lodash';
 import bcrypt from 'bcrypt';
+import { omit } from 'lodash';
 import passport from 'passport';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import { Strategy as LocalStrategy } from 'passport-local';
+
+import { HttpException } from '@nws/core';
 
 import { UserService } from '../services/users.service';
 

@@ -1,12 +1,14 @@
-import { CreatePlaylistDto } from 'dtos/playlists.dto';
 import { Request, Response, NextFunction } from 'express';
-import { PlaylistService } from 'services/playlists.service';
+
+import { CreatePlaylistDto } from '../dtos/playlists.dto';
+import { PlaylistService } from '../services/playlists.service';
+import { AuthenticatedRequest } from '../types';
 
 export class PlaylistsController {
   public playlistService = new PlaylistService();
 
   public postPlaylist = async (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user as AuthenticatedRequest;
+    const { user } = req as AuthenticatedRequest;
     const data: CreatePlaylistDto = req.body;
 
     try {
@@ -14,6 +16,8 @@ export class PlaylistsController {
         ...data,
         author: user.id,
       });
+
+      res.status(201).json(newPlaylist);
     } catch (error) {
       return next(error);
     }

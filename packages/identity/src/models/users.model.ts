@@ -1,4 +1,3 @@
-import { HttpException } from '@nws/core';
 import {
   AllowNull,
   BelongsToMany,
@@ -11,6 +10,8 @@ import {
   ValidationFailed,
 } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
+
+import { HttpException } from '@nws/core';
 
 import { Group } from './groups.model';
 

@@ -1,13 +1,14 @@
 import compression from 'compression';
 import cors from 'cors';
-import helmet from 'helmet';
 import express from 'express';
+import helmet from 'helmet';
 import hpp from 'hpp';
 import morgan from 'morgan';
 import passport from 'passport';
+
 import { Logger } from '@nws/core';
-import { Route } from '@nws/core/src/types';
 import { errorMiddleware } from '@nws/core/src/middleware';
+import { Route } from '@nws/core/src/types';
 
 import { sequelize } from './database';
 import { initAuthMiddleware } from './middleware/auth.middleware';

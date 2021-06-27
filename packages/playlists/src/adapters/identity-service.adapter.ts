@@ -1,8 +1,10 @@
 import fetch from 'node-fetch';
 
 export class IdentityServiceAdapter {
-  getUser = (id: string, authorization: string) =>
-    fetch(`${process.env.identityServiceUrl}/users/${id}`, {
-      headers: { authorization },
-    });
+  getUser = async (id: string, authorization: string) =>
+    (
+      await fetch(`${process.env.identityServiceUrl}/users/${id}`, {
+        headers: { authorization },
+      })
+    ).json();
 }
