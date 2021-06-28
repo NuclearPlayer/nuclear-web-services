@@ -34,3 +34,4 @@ export const initAuthMiddleware = () => {
 };
 
 export const authMiddleware = passport.authenticate('jwt', { session: false });
+export const optionalAuthMiddleware = passport.authenticate('jwt', { session: false, failWithError: true });

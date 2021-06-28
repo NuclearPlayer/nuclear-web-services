@@ -1,12 +1,13 @@
-import supertest from 'supertest';
 import jwt from 'jsonwebtoken';
+import supertest from 'supertest';
+
 import { UuidRegex } from '@nws/core/src/regex';
 
 import App from '../src/app';
 import { User } from '../src/models/users.model';
 import { UsersRoute } from '../src/routes/users.route';
-import { UserService } from '../src/services/users.service';
 import { GroupService } from '../src/services/groups.service';
+import { UserService } from '../src/services/users.service';
 import { createGroup, createNewUser, userToJson } from './utils';
 
 describe('Users route tests', () => {
@@ -59,10 +60,8 @@ describe('Users route tests', () => {
     expect(body).toEqual([userToJson(newUser), userToJson(newUser2)]);
   });
 
-  it('tries to get nonexistent user (404)', async () => {
-    await supertest(app.getServer())
-      .get('/users/4f81d38f-692a-40ec-840b-080ceb5cd730')
-      .expect(404, { message: 'User with id 4f81d38f-692a-40ec-840b-080ceb5cd730 not found' });
+  it('tries to get nonexistent user without a token (401)', async () => {
+    await supertest(app.getServer()).get('/users/4f81d38f-692a-40ec-840b-080ceb5cd730').expect(401);
   });
 
   it('tries to get a user for a valid token for its own user (200)', async () => {
