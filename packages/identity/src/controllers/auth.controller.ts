@@ -1,5 +1,6 @@
-import { HttpException } from '@nws/core';
 import { Request, Response, NextFunction } from 'express';
+
+import { HttpException } from '@nws/core';
 
 import { AuthService } from '../services/auth.service';
 import { AuthenticatedRequest } from '../types';

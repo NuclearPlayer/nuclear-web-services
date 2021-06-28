@@ -3,5 +3,7 @@
   "tabWidth": 2,
   "singleQuote": true,
   "trailingComma": "all",
-  "jsxSingleQuote": true
+  "jsxSingleQuote": true,
+  "importOrder": ["^@nws/(.*)$", "^[../]", "^[./]"],
+  "importOrderSeparation": true
 }

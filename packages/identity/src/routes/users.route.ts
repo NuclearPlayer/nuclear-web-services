@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { Route } from '@nws/core/src/types';
+
 import { UuidRegex } from '@nws/core/src/regex';
+import { Route } from '@nws/core/src/types';
 
 import { UsersController } from '../controllers/users.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
@@ -22,11 +23,8 @@ export class UsersRoute implements Route {
 
   initializeRoutes() {
     this.router.get(this.makeRoute(''), authMiddleware, isAdmin, this.usersController.getUsers);
-
-    this.router.get(this.makeRoute(`/:id(${UuidRegex})`), this.usersController.getUserById);
-
+    this.router.get(this.makeRoute(`/:id(${UuidRegex})`), authMiddleware, isSameUser, this.usersController.getUserById);
     this.router.post(this.makeRoute(''), authMiddleware, isAdmin, this.usersController.postUser);
-
     this.router.patch(this.makeRoute(`/:id(${UuidRegex})`), authMiddleware, isSameUser, this.usersController.patchUser);
   }
 }

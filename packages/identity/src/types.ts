@@ -1,4 +1,5 @@
 import { Request } from 'express';
+
 import { User } from './models/users.model';
 
 export type JWTData = {
