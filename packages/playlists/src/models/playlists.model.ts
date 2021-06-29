@@ -1,5 +1,7 @@
-import { AllowNull, Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { AllowNull, Column, DataType, HasMany, Model, Table, ValidationFailed } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
+
+import { HttpException } from '@nws/core';
 
 import { Track } from './track.model';
 
@@ -46,4 +48,9 @@ export class Playlist extends Model<PlaylistAttributes, PlaylistCreationAttribut
 
   @HasMany(() => Track, 'playlistId')
   tracks: Track[];
+
+  @ValidationFailed
+  static afterValidateHook(instance: any, options: any, error: any) {
+    throw new HttpException(400, error.message);
+  }
 }

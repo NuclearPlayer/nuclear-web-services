@@ -1,7 +1,7 @@
 import { AllowNull, BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
-import { Artist } from './artist.model';
+import { Artist } from './artists.model';
 import { Playlist } from './playlists.model';
 
 export interface TrackAttributes {

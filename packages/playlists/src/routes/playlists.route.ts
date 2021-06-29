@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 
+import { Route } from '@nws/core';
 import { UuidRegex } from '@nws/core/src/regex';
-import { Route } from '@nws/core/src/types';
 
 import { PlaylistsController } from '../controllers/playlists.controller';
 import { authMiddleware, optionalAuthMiddleware } from '../middleware/auth.middleware';

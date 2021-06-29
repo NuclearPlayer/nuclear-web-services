@@ -1,5 +1,7 @@
-import { AllowNull, Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { AllowNull, Column, DataType, HasMany, Model, Table, Unique, ValidationFailed } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
+
+import { HttpException } from '@nws/core';
 
 import { Track } from './track.model';
 
@@ -24,6 +26,7 @@ export class Artist extends Model<ArtistAttributes, ArtistCreationAttributes> {
   public id: string;
 
   @AllowNull(false)
+  @Unique
   @Column({
     type: DataType.STRING(),
   })
@@ -31,4 +34,15 @@ export class Artist extends Model<ArtistAttributes, ArtistCreationAttributes> {
 
   @HasMany(() => Track, 'artistId')
   tracks: Track[];
+
+  @AllowNull(false)
+  @Column({
+    type: DataType.UUIDV4,
+  })
+  public addedBy: string;
+
+  @ValidationFailed
+  static afterValidateHook(instance: any, options: any, error: any) {
+    throw new HttpException(400, error.message);
+  }
 }

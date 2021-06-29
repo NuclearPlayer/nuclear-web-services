@@ -1,9 +1,8 @@
-import fetch from 'node-fetch';
 import supertest from 'supertest';
 
 import App from '../src/app';
 import { PlaylistsRoute } from '../src/routes/playlists.route';
-import { createPlaylist, createToken } from './utils';
+import { createPlaylist, createToken, mockGetTokenFail, mockGetTokenOK } from './utils';
 
 jest.mock('node-fetch');
 
@@ -18,13 +17,7 @@ describe('Playlists route tests', () => {
   beforeEach(async () => {
     await app.getDb().sync({ force: true });
     jest.resetAllMocks();
-    //@ts-ignore
-    fetch.mockResolvedValueOnce({
-      json: jest.fn().mockResolvedValue({
-        id: '8281df2b-77b9-4005-9062-566eb9bd1503',
-        username: 'test-user',
-      }),
-    });
+    mockGetTokenOK();
   });
 
   it('tries to create a new playlist with a valid token (200)', async () => {
@@ -44,11 +37,7 @@ describe('Playlists route tests', () => {
   });
 
   it('tries to create a new playlist without a valid token (401)', async () => {
-    //@ts-ignore
-    fetch.mockResolvedValueOnce({
-      statusCode: 401,
-      json: jest.fn().mockResolvedValue({}),
-    });
+    mockGetTokenFail();
     const { body, statusCode } = await supertest(app.getServer()).post('/playlists').send({
       name: 'new playlist',
       tracks: [],
@@ -64,11 +53,7 @@ describe('Playlists route tests', () => {
       body: { id },
     } = await createPlaylist(app, token);
 
-    //@ts-ignore
-    fetch.mockResolvedValueOnce({
-      statusCode: 401,
-      json: jest.fn().mockResolvedValue({}),
-    });
+    mockGetTokenFail();
     const { body, statusCode } = await supertest(app.getServer()).get(`/playlists/${id}`);
 
     expect(statusCode).toEqual(200);
@@ -89,11 +74,7 @@ describe('Playlists route tests', () => {
       body: { id },
     } = await createPlaylist(app, token, { private: true });
 
-    //@ts-ignore
-    fetch.mockResolvedValueOnce({
-      statusCode: 401,
-      json: jest.fn().mockResolvedValue({}),
-    });
+    mockGetTokenFail();
     const { body, statusCode } = await supertest(app.getServer()).get(`/playlists/${id}`);
 
     expect(statusCode).toEqual(403);
@@ -125,13 +106,7 @@ describe('Playlists route tests', () => {
       body: { id },
     } = await createPlaylist(app, token, { private: true });
 
-    //@ts-ignore
-    fetch.mockResolvedValueOnce({
-      json: jest.fn().mockResolvedValue({
-        id: '8281df2b-77b9-4005-9062-566eb9bd1503',
-        username: 'test-user',
-      }),
-    });
+    mockGetTokenOK();
     const { body, statusCode } = await supertest(app.getServer())
       .get(`/playlists/${id}`)
       .set('Authorization', `Bearer ${token}`);
@@ -156,6 +131,35 @@ describe('Playlists route tests', () => {
     expect(statusCode).toEqual(404);
     expect(body).toEqual({});
   });
+
+  // it('tries to patch own playlist (200)', async () => {
+  //   const token = createToken();
+  //   const {
+  //     body: { id },
+  //   } = await createPlaylist(app, token);
+
+  //   mockGetTokenOK();
+  //   const { body, statusCode } = await supertest(app.getServer())
+  //     .patch(`/playlists/${id}`)
+  //     .send({
+  //       tracks: [
+  //         {
+  //           name: 'test track',
+  //           artistId: 'artist-id-1',
+  //           playlistId: id,
+  //         },
+  //         {
+  //           name: 'test track 2',
+  //           artistId: 'artist-id-2',
+  //           playlistId: id,
+  //         },
+  //       ],
+  //     })
+  //     .set('Authorization', `Bearer ${token}`);
+
+  //   expect(statusCode).toEqual(204);
+  //   expect(body).toBeUndefined();
+  // });
 
   // it("tries to get all of a user's public playlists without a token (200)", async () => {
   //   let token = createToken();

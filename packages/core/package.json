@@ -18,6 +18,9 @@
     "url": "https://github.com/NuclearPlayer/nuclear-web-services/issues"
   },
   "dependencies": {
+    "class-transformer": "^0.4.0",
+    "class-transformer-validator": "^0.9.1",
+    "class-validator": "^0.13.1",
     "sequelize-typescript": "^2.1.0",
     "winston": "^3.3.3"
   }
