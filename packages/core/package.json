@@ -23,5 +23,8 @@
     "class-validator": "^0.13.1",
     "sequelize-typescript": "^2.1.0",
     "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "yup": "^0.32.9"
   }
 }
