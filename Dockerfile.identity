@@ -3,15 +3,15 @@ FROM node:12 as builder
 WORKDIR /app
 RUN apt-get update || : && apt-get install python -y
 RUN npm i lerna -g
-COPY package*.json .
+COPY package*.json ./
 COPY lerna.json .
-COPY . .
+COPY . ./
 RUN npm install --unsafe-perm
 RUN cd packages/identity && npm run build
 
 FROM node:12-alpine as runner
 WORKDIR /app
-COPY --from=builder /app .
+COPY --from=builder /app ./
 WORKDIR /app/packages/identity
 EXPOSE $PORT
 
