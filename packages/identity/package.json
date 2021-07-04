@@ -12,7 +12,7 @@
   },
   "scripts": {
     "start": "cross-env NODE_ENV=production node build/server.bundle.js",
-    "build": "webpack",
+    "build": "tsc",
     "dev": "cross-env NODE_ENV=development nodemon",
     "test": "cross-env NODE_ENV=test jest tests",
     "coverage": "cross-env NODE_ENV=test jest tests --coverage",

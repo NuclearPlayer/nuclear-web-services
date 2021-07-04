@@ -1,0 +1,19 @@
+name: Build docker images for services
+
+on: [push]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - uses: actions/checkout@master
+    - name: Use Node.js 14
+      uses: actions/setup-node@master
+      with:
+        version: '14'
+    - name: docker - build identity service image
+      run: docker build . --tag dokku/nws-identity -f Dockerfile.identity
+    - name: docker - build playlists service image
+      run: docker build . --tag dokku/nws-playlists -f Dockerfile.playlists
