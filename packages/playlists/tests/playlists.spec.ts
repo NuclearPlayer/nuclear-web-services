@@ -47,6 +47,35 @@ describe('Playlists route tests', () => {
     expect(body).toEqual({});
   });
 
+  it('tries to create a new playlist without required fields (400)', async () => {
+    const token = createToken();
+    const { body, statusCode } = await supertest(app.getServer())
+      .post('/playlists')
+      .send({})
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(statusCode).toEqual(400);
+    expect(body).toEqual({
+      message: ['author is a required field', 'name is a required field'],
+    });
+  });
+
+  it('tries to create a new playlist with invalid field values (400)', async () => {
+    const token = createToken();
+    const { body, statusCode } = await supertest(app.getServer())
+      .post('/playlists')
+      .send({
+        name: 'ab',
+        author: 123,
+      })
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(statusCode).toEqual(400);
+    expect(body).toEqual({
+      message: ['author must be a valid UUID', 'name must be at least 3 characters'],
+    });
+  });
+
   it('tries to get a public playlist without a token (200)', async () => {
     const token = createToken();
     const {

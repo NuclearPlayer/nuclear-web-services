@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response, Router } from 'express';
 
 import { Route } from '@nws/core';
+import { validate } from '@nws/core/src/middleware';
 import { UuidRegex } from '@nws/core/src/regex';
 
 import { PlaylistsController } from '../controllers/playlists.controller';
 import { authMiddleware, optionalAuthMiddleware } from '../middleware/auth.middleware';
+import { PostPlaylistRequestSchema } from '../schemas/playlists.schema';
 
 export class PlaylistsRoute implements Route {
   public path = '/playlists';
@@ -20,7 +22,12 @@ export class PlaylistsRoute implements Route {
   }
 
   initializeRoutes() {
-    this.router.post(this.makeRoute(''), authMiddleware, this.playlistsController.postPlaylist);
+    this.router.post(
+      this.makeRoute(''),
+      authMiddleware,
+      validate(PostPlaylistRequestSchema),
+      this.playlistsController.postPlaylist,
+    );
     this.router.get(
       this.makeRoute(`/:id(${UuidRegex})`),
       optionalAuthMiddleware,

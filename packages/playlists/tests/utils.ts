@@ -9,6 +9,7 @@ export const createPlaylist = async (app: any, token: string, data?: object) =>
   supertest(app.getServer())
     .post('/playlists')
     .send({
+      author: '8281df2b-77b9-4005-9062-566eb9bd1503',
       name: 'new playlist',
       tracks: [],
       ...data,

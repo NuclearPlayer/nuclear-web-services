@@ -49,14 +49,7 @@ describe('Artists route - `POST', () => {
 
     expect(statusCode).toEqual(400);
     expect(body).toEqual({
-      message: [
-        expect.objectContaining({
-          constraints: {
-            isString: 'name must be a string',
-          },
-          property: 'name',
-        }),
-      ],
+      message: ['name is a required field'],
     });
   });
 

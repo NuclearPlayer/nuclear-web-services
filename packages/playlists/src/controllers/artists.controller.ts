@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-import { PostArtistRequestDto } from '../dtos/artists.dto';
+import { CreateArtistDto } from '../dtos/artists.dto';
 import { ArtistService } from '../services/artists.service';
 import { AuthenticatedRequest } from '../types';
 
@@ -9,7 +9,7 @@ export class ArtistsController {
 
   public postArtist = async (req: Request, res: Response, next: NextFunction) => {
     const { user } = req as AuthenticatedRequest;
-    const data: PostArtistRequestDto = req.body;
+    const data: CreateArtistDto = req.body;
 
     try {
       const foundArtist = await this.artistService.findOneByName(data.name);

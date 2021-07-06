@@ -1,11 +1,11 @@
 import { Router } from 'express';
 
 import { Route } from '@nws/core';
+import { validate } from '@nws/core/src/middleware';
 
-import { validatorMiddleware } from '../../../core/src/middleware';
 import { ArtistsController } from '../controllers/artists.controller';
-import { PostArtistRequestDto } from '../dtos/artists.dto';
 import { authMiddleware } from '../middleware/auth.middleware';
+import { PostArtistRequestSchema } from '../schemas/artists.schema';
 
 export class ArtistsRoute implements Route {
   public path = '/artists';
@@ -24,7 +24,7 @@ export class ArtistsRoute implements Route {
     this.router.post(
       this.makeRoute(''),
       authMiddleware,
-      validatorMiddleware(PostArtistRequestDto),
+      validate(PostArtistRequestSchema),
       this.artistsController.postArtist,
     );
   }

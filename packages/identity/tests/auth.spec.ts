@@ -1,9 +1,7 @@
 import supertest from 'supertest';
-import jwt from 'jsonwebtoken';
 
 import App from '../src/app';
 import { AuthRoute } from '../src/routes/auth.route';
-import { createNewUser } from './utils';
 import { UserService } from '../src/services/users.service';
 
 describe('Auth controller tests', () => {
@@ -23,7 +21,7 @@ describe('Auth controller tests', () => {
     const { body, statusCode } = await supertest(app.getServer()).post('/signup').send({
       username: 'test-user',
       email: 'test@example.com',
-      password: 'abc',
+      password: 'asdQWE123',
     });
 
     expect(statusCode).toEqual(201);
@@ -38,16 +36,46 @@ describe('Auth controller tests', () => {
     });
   });
 
+  it('tries to sign up with invalid field values (400)', async () => {
+    const { body, statusCode } = await supertest(app.getServer()).post('/signup').send({
+      username: 'te',
+      email: 'invalid email',
+      password: 'abc',
+    });
+
+    expect(statusCode).toEqual(400);
+    expect(body).toEqual({
+      message: [
+        'username must be at least 4 characters',
+        'email must be a valid email',
+        'password must be at least 6 characters',
+      ],
+    });
+  });
+
+  it('tries to sign up with invalid username values (400)', async () => {
+    const { body, statusCode } = await supertest(app.getServer()).post('/signup').send({
+      username: 'admin',
+      email: 'email@example.com',
+      password: 'abcDEF123',
+    });
+
+    expect(statusCode).toEqual(400);
+    expect(body).toEqual({
+      message: ['this username is reserved'],
+    });
+  });
+
   it('tries to sign in after signing up (200)', async () => {
     await supertest(app.getServer()).post('/signup').send({
       username: 'test-user',
       email: 'test@example.com',
-      password: 'abc',
+      password: 'abcDEF123',
     });
 
     const { body, statusCode } = await supertest(app.getServer()).post('/signin').send({
       username: 'test-user',
-      password: 'abc',
+      password: 'abcDEF123',
     });
 
     expect(statusCode).toEqual(200);

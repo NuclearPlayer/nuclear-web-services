@@ -42,7 +42,8 @@
     "pg-hstore": "^2.3.4",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.6.2",
-    "sequelize-typescript": "^2.1.0"
+    "sequelize-typescript": "^2.1.0",
+    "the-big-username-blacklist": "^1.5.2"
   },
   "devDependencies": {
     "@babel/register": "^7.14.5",
