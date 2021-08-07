@@ -29,6 +29,19 @@ export class PlaylistsController {
     }
   };
 
+  public getPlaylistsByUserId = async (req: Request, res: Response, next: NextFunction) => {
+    const { user, params } = req as AuthenticatedRequest;
+    const { id } = params;
+
+    try {
+      const playlists = await this.playlistService.findAllByUserId(id, user?.id === id);
+
+      res.status(200).json(playlists);
+    } catch (error) {
+      return next(error);
+    }
+  };
+
   public postPlaylist = async (req: Request, res: Response, next: NextFunction) => {
     const { user } = req as AuthenticatedRequest;
     const data: CreatePlaylistDto = req.body;

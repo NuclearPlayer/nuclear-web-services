@@ -20,7 +20,7 @@ describe('Playlists route tests', () => {
     mockGetTokenOK();
   });
 
-  it('tries to create a new playlist with a valid token (200)', async () => {
+  it('tries to create a new empty playlist with a valid token (200)', async () => {
     const token = createToken();
     const { body, statusCode } = await createPlaylist(app, token);
 
@@ -188,24 +188,5 @@ describe('Playlists route tests', () => {
 
   //   expect(statusCode).toEqual(204);
   //   expect(body).toBeUndefined();
-  // });
-
-  // it("tries to get all of a user's public playlists without a token (200)", async () => {
-  //   let token = createToken();
-  //   await createPlaylist(app, token);
-  //   await createPlaylist(app, token, { name: 'another playlist' });
-  //   await createPlaylist(app, token, { name: 'yet another playlist' });
-  //   await createPlaylist(app, token, { name: 'a private playlist', private: true });
-
-  //   const { body, statusCode } = await supertest(app.getServer()).get(
-  //     '/users/8281df2b-77b9-4005-9062-566eb9bd1503/playlists',
-  //   );
-
-  //   expect(statusCode).toEqual(200);
-  //   expect(body).toEqual([
-  //     expect.objectContaining({ name: 'new playlist' }),
-  //     expect.objectContaining({ name: 'another playlist' }),
-  //     expect.objectContaining({ name: 'yet another playlist' }),
-  //   ]);
   // });
 });
