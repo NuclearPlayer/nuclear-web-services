@@ -42,4 +42,28 @@ describe('Users route tests', () => {
       expect.objectContaining({ name: 'yet another playlist' }),
     ]);
   });
+
+  it('tries to get all of a users public playlists with a token (200)', async () => {
+    mockGetTokenOK();
+    mockGetTokenOK();
+    mockGetTokenOK();
+    let token = createToken();
+    await createPlaylist(app, token);
+    await createPlaylist(app, token, { name: 'another playlist' });
+    await createPlaylist(app, token, { name: 'yet another playlist' });
+    await createPlaylist(app, token, { name: 'a private playlist', private: true });
+
+    mockGetTokenOK();
+    const { body, statusCode } = await supertest(app.getServer())
+      .get('/users/8281df2b-77b9-4005-9062-566eb9bd1503/playlists')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(statusCode).toEqual(200);
+    expect(body).toEqual([
+      expect.objectContaining({ name: 'new playlist' }),
+      expect.objectContaining({ name: 'another playlist' }),
+      expect.objectContaining({ name: 'yet another playlist' }),
+      expect.objectContaining({ name: 'a private playlist' }),
+    ]);
+  });
 });

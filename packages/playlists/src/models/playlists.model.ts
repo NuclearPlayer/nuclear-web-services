@@ -1,9 +1,9 @@
-import { AllowNull, Column, DataType, HasMany, Model, Table, ValidationFailed } from 'sequelize-typescript';
+import { AllowNull, BelongsToMany, Column, DataType, Model, Table, ValidationFailed } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
 import { HttpException } from '@nws/core';
 
-import { Track } from './track.model';
+import { Track } from './tracks.model';
 
 export interface PlaylistAttributes {
   id: string;
@@ -46,7 +46,7 @@ export class Playlist extends Model<PlaylistAttributes, PlaylistCreationAttribut
   })
   public private: boolean;
 
-  @HasMany(() => Track, 'playlistId')
+  @BelongsToMany(() => Track, 'tracks_playlists', 'playlistId', 'trackId')
   tracks: Track[];
 
   @ValidationFailed

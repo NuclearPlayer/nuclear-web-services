@@ -1,14 +1,24 @@
-import { AllowNull, BelongsTo, Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
+import {
+  AllowNull,
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  Model,
+  Table,
+  ValidationFailed,
+} from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
+import { HttpException } from '@nws/core/src';
+
 import { Artist } from './artists.model';
-import { Playlist } from './playlists.model';
 
 export interface TrackAttributes {
   id: string;
   name: string;
   artistId: string;
-  playlistId: string;
+  addedBy: string;
 }
 
 export type TrackCreationAttributes = Optional<TrackAttributes, 'id'>;
@@ -19,7 +29,7 @@ export type TrackCreationAttributes = Optional<TrackAttributes, 'id'>;
 })
 export class Track extends Model<TrackAttributes, TrackCreationAttributes> {
   @Column({
-    type: DataType.UUID,
+    type: DataType.UUIDV4,
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
   })
@@ -28,26 +38,29 @@ export class Track extends Model<TrackAttributes, TrackCreationAttributes> {
   @AllowNull(false)
   @Column({
     type: DataType.STRING(),
+    unique: 'artist_track_name',
   })
   public name: string;
 
   @AllowNull(false)
   @ForeignKey(() => Artist)
   @Column({
-    type: DataType.STRING(),
+    type: DataType.UUIDV4,
+    unique: 'artist_track_name',
   })
-  public artistId: string;
+  artistId: string;
 
-  @BelongsTo(() => Artist, 'artistId')
+  @BelongsTo(() => Artist)
   artist: Artist;
 
   @AllowNull(false)
-  @ForeignKey(() => Playlist)
   @Column({
-    type: DataType.STRING(),
+    type: DataType.UUIDV4,
   })
-  public playlistId: string;
+  public addedBy: string;
 
-  @BelongsTo(() => Playlist, 'playlistId')
-  playlist: Playlist;
+  @ValidationFailed
+  static afterValidateHook(instance: any, options: any, error: any) {
+    throw new HttpException(400, error.message);
+  }
 }

@@ -3,7 +3,7 @@ import { Optional } from 'sequelize/types';
 
 import { HttpException } from '@nws/core';
 
-import { Track } from './track.model';
+import { Track } from './tracks.model';
 
 export interface ArtistAttributes {
   id: string;
@@ -32,7 +32,7 @@ export class Artist extends Model<ArtistAttributes, ArtistCreationAttributes> {
   })
   public name: string;
 
-  @HasMany(() => Track, 'artistId')
+  @HasMany(() => Track)
   tracks: Track[];
 
   @AllowNull(false)

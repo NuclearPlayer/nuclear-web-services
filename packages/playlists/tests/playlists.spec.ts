@@ -2,7 +2,7 @@ import supertest from 'supertest';
 
 import App from '../src/app';
 import { PlaylistsRoute } from '../src/routes/playlists.route';
-import { createPlaylist, createToken, mockGetTokenFail, mockGetTokenOK } from './utils';
+import { createPlaylist, createToken, DEFAULT_USER_ID, mockGetTokenFail, mockGetTokenOK } from './utils';
 
 jest.mock('node-fetch');
 
@@ -20,7 +20,7 @@ describe('Playlists route tests', () => {
     mockGetTokenOK();
   });
 
-  it('tries to create a new empty playlist with a valid token (200)', async () => {
+  it('tries to create a new empty playlist with a valid token (201)', async () => {
     const token = createToken();
     const { body, statusCode } = await createPlaylist(app, token);
 
@@ -159,6 +159,64 @@ describe('Playlists route tests', () => {
 
     expect(statusCode).toEqual(404);
     expect(body).toEqual({});
+  });
+
+  it('tries to create a new playlist with tracks (201)', async () => {
+    const token = createToken();
+    const { body, statusCode } = await createPlaylist(app, token, {
+      tracks: [
+        {
+          artist: 'new artist',
+          name: 'new track',
+        },
+        {
+          artist: 'new artist',
+          name: 'new track 2',
+        },
+        {
+          artist: 'another artist',
+          name: 'new track',
+        },
+      ],
+    });
+
+    expect(statusCode).toEqual(201);
+    expect(body).toEqual({
+      id: expect.any(String),
+      author: DEFAULT_USER_ID,
+      name: 'new playlist',
+      tracks: [
+        {
+          id: expect.any(String),
+          artistId: expect.any(String),
+          name: 'new track',
+          addedBy: DEFAULT_USER_ID,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+        {
+          id: expect.any(String),
+          artistId: expect.any(String),
+          name: 'new track 2',
+          addedBy: DEFAULT_USER_ID,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+        {
+          id: expect.any(String),
+          artistId: expect.any(String),
+          name: 'new track',
+          addedBy: DEFAULT_USER_ID,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      ],
+      private: false,
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
+    });
+    expect(body.tracks[0].artistId).toEqual(body.tracks[1].artistId);
+    expect(body.tracks[0].artistId).not.toEqual(body.tracks[2].artistId);
   });
 
   // it('tries to patch own playlist (200)', async () => {

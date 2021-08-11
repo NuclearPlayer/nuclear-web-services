@@ -1,7 +1,6 @@
 import { CrudService } from '../../../core/src/types';
 import { CreateArtistDto } from '../dtos/artists.dto';
 import { Artist } from '../models/artists.model';
-import { Playlist } from '../models/playlists.model';
 
 export class ArtistService implements CrudService<Artist, CreateArtistDto> {
   public artists = Artist;
@@ -10,8 +9,14 @@ export class ArtistService implements CrudService<Artist, CreateArtistDto> {
     throw new Error('Method not implemented.');
   }
 
-  create(data: CreateArtistDto) {
-    return this.artists.create(data);
+  async create(data: CreateArtistDto) {
+    const [artist] = await this.artists.findOrCreate({
+      where: {
+        name: data.name,
+      },
+      defaults: data,
+    });
+    return artist;
   }
 
   findOneById(id: string): Promise<Artist | null> {

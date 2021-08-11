@@ -2,14 +2,15 @@ import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
 import supertest from 'supertest';
 
-export const createToken = (id?: string) =>
-  jwt.sign({ id: id ?? '8281df2b-77b9-4005-9062-566eb9bd1503' }, process.env.JWT_SECRET as string);
+export const DEFAULT_USER_ID = '8281df2b-77b9-4005-9062-566eb9bd1503';
+
+export const createToken = (id?: string) => jwt.sign({ id: id ?? DEFAULT_USER_ID }, process.env.JWT_SECRET as string);
 
 export const createPlaylist = async (app: any, token: string, data?: object) =>
   supertest(app.getServer())
     .post('/playlists')
     .send({
-      author: '8281df2b-77b9-4005-9062-566eb9bd1503',
+      author: DEFAULT_USER_ID,
       name: 'new playlist',
       tracks: [],
       ...data,
@@ -34,7 +35,7 @@ export const mockGetTokenOK = () =>
   // @ts-ignore
   fetch.mockResolvedValueOnce({
     json: jest.fn().mockResolvedValue({
-      id: '8281df2b-77b9-4005-9062-566eb9bd1503',
+      id: DEFAULT_USER_ID,
       username: 'test-user',
     }),
   });
