@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 import { HttpException } from '../../../core/src';
-import { CreatePlaylistDto } from '../dtos/playlists.dto';
+import { CreatePlaylistDto, UpdatePlaylistDto } from '../dtos/playlists.dto';
 import { PlaylistService } from '../services/playlists.service';
 import { AuthenticatedRequest } from '../types';
 
@@ -53,6 +53,23 @@ export class PlaylistsController {
       });
 
       res.status(201).json(newPlaylist);
+    } catch (error) {
+      return next(error);
+    }
+  };
+
+  public putPlaylist = async (req: Request, res: Response, next: NextFunction) => {
+    const { user, params } = req as AuthenticatedRequest;
+    const data: UpdatePlaylistDto = req.body;
+    const { id } = params;
+
+    try {
+      const updatedPlaylist = await this.playlistService.update(id, {
+        ...data,
+        author: user.id,
+      });
+
+      res.status(200).json(updatedPlaylist);
     } catch (error) {
       return next(error);
     }

@@ -1,8 +1,10 @@
 import {
   AllowNull,
   BelongsTo,
+  BelongsToMany,
   Column,
   DataType,
+  DefaultScope,
   ForeignKey,
   Model,
   Table,
@@ -13,6 +15,8 @@ import { Optional } from 'sequelize/types';
 import { HttpException } from '@nws/core/src';
 
 import { Artist } from './artists.model';
+import { Playlist } from './playlists.model';
+import { TrackPlaylist } from './tracks_playlists.model';
 
 export interface TrackAttributes {
   id: string;
@@ -23,6 +27,9 @@ export interface TrackAttributes {
 
 export type TrackCreationAttributes = Optional<TrackAttributes, 'id'>;
 
+@DefaultScope(() => ({
+  attributes: { exclude: ['playlists', 'createdAt', 'updatedAt'] },
+}))
 @Table({
   timestamps: true,
   tableName: 'tracks',
@@ -58,6 +65,9 @@ export class Track extends Model<TrackAttributes, TrackCreationAttributes> {
     type: DataType.UUIDV4,
   })
   public addedBy: string;
+
+  @BelongsToMany(() => Playlist, () => TrackPlaylist)
+  playlists: Playlist[];
 
   @ValidationFailed
   static afterValidateHook(instance: any, options: any, error: any) {

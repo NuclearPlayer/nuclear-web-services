@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
 import supertest from 'supertest';
 
+import { Playlist } from '../src/models/playlists.model';
+
 export const DEFAULT_USER_ID = '8281df2b-77b9-4005-9062-566eb9bd1503';
 
 export const createToken = (id?: string) => jwt.sign({ id: id ?? DEFAULT_USER_ID }, process.env.JWT_SECRET as string);
@@ -10,7 +12,6 @@ export const createPlaylist = async (app: any, token: string, data?: object) =>
   supertest(app.getServer())
     .post('/playlists')
     .send({
-      author: DEFAULT_USER_ID,
       name: 'new playlist',
       tracks: [],
       ...data,
@@ -45,4 +46,21 @@ export const mockGetTokenFail = () =>
   fetch.mockResolvedValueOnce({
     statusCode: 401,
     json: jest.fn().mockResolvedValue({}),
+  });
+
+export const expectPlaylistWithTracks = (body: object, tracks: { name: string }[], options?: Partial<Playlist>) =>
+  expect(body).toEqual({
+    id: expect.any(String),
+    author: DEFAULT_USER_ID,
+    name: 'new playlist',
+    tracks: tracks.map((track) => ({
+      id: expect.any(String),
+      artistId: expect.any(String),
+      name: track.name,
+      addedBy: DEFAULT_USER_ID,
+    })),
+    private: false,
+    createdAt: expect.any(String),
+    updatedAt: expect.any(String),
+    ...options,
   });

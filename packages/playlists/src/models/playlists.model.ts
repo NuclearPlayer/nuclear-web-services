@@ -4,16 +4,16 @@ import { Optional } from 'sequelize/types';
 import { HttpException } from '@nws/core';
 
 import { Track } from './tracks.model';
+import { TrackPlaylist } from './tracks_playlists.model';
 
 export interface PlaylistAttributes {
   id: string;
   author: string;
   name: string;
   private: boolean;
-  tracks: Track[];
 }
 
-export type PlaylistCreationAttributes = Optional<PlaylistAttributes, 'id' | 'private' | 'tracks'>;
+export type PlaylistCreationAttributes = Optional<PlaylistAttributes, 'id' | 'private'> & { tracks?: Track[] };
 
 @Table({
   timestamps: true,
@@ -46,7 +46,7 @@ export class Playlist extends Model<PlaylistAttributes, PlaylistCreationAttribut
   })
   public private: boolean;
 
-  @BelongsToMany(() => Track, 'tracks_playlists', 'playlistId', 'trackId')
+  @BelongsToMany(() => Track, () => TrackPlaylist)
   tracks: Track[];
 
   @ValidationFailed

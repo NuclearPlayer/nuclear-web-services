@@ -2,7 +2,14 @@ import supertest from 'supertest';
 
 import App from '../src/app';
 import { PlaylistsRoute } from '../src/routes/playlists.route';
-import { createPlaylist, createToken, DEFAULT_USER_ID, mockGetTokenFail, mockGetTokenOK } from './utils';
+import {
+  createPlaylist,
+  createToken,
+  DEFAULT_USER_ID,
+  expectPlaylistWithTracks,
+  mockGetTokenFail,
+  mockGetTokenOK,
+} from './utils';
 
 jest.mock('node-fetch');
 
@@ -171,6 +178,10 @@ describe('Playlists route tests', () => {
         },
         {
           artist: 'new artist',
+          name: 'new track',
+        },
+        {
+          artist: 'new artist',
           name: 'new track 2',
         },
         {
@@ -181,70 +192,36 @@ describe('Playlists route tests', () => {
     });
 
     expect(statusCode).toEqual(201);
-    expect(body).toEqual({
-      id: expect.any(String),
-      author: DEFAULT_USER_ID,
-      name: 'new playlist',
-      tracks: [
-        {
-          id: expect.any(String),
-          artistId: expect.any(String),
-          name: 'new track',
-          addedBy: DEFAULT_USER_ID,
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-        },
-        {
-          id: expect.any(String),
-          artistId: expect.any(String),
-          name: 'new track 2',
-          addedBy: DEFAULT_USER_ID,
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-        },
-        {
-          id: expect.any(String),
-          artistId: expect.any(String),
-          name: 'new track',
-          addedBy: DEFAULT_USER_ID,
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-        },
-      ],
-      private: false,
-      createdAt: expect.any(String),
-      updatedAt: expect.any(String),
-    });
+    expectPlaylistWithTracks(body, [{ name: 'new track' }, { name: 'new track 2' }, { name: 'new track' }]);
     expect(body.tracks[0].artistId).toEqual(body.tracks[1].artistId);
     expect(body.tracks[0].artistId).not.toEqual(body.tracks[2].artistId);
   });
 
-  // it('tries to patch own playlist (200)', async () => {
-  //   const token = createToken();
-  //   const {
-  //     body: { id },
-  //   } = await createPlaylist(app, token);
+  it('tries to put own playlist (200)', async () => {
+    const token = createToken();
+    const {
+      body: { id },
+    } = await createPlaylist(app, token);
 
-  //   mockGetTokenOK();
-  //   const { body, statusCode } = await supertest(app.getServer())
-  //     .patch(`/playlists/${id}`)
-  //     .send({
-  //       tracks: [
-  //         {
-  //           name: 'test track',
-  //           artistId: 'artist-id-1',
-  //           playlistId: id,
-  //         },
-  //         {
-  //           name: 'test track 2',
-  //           artistId: 'artist-id-2',
-  //           playlistId: id,
-  //         },
-  //       ],
-  //     })
-  //     .set('Authorization', `Bearer ${token}`);
+    mockGetTokenOK();
+    const { body, statusCode } = await supertest(app.getServer())
+      .put(`/playlists/${id}`)
+      .send({
+        tracks: [
+          {
+            name: 'test track',
+            artist: 'artist-1',
+          },
+          {
+            name: 'test track 2',
+            artist: 'artist-2',
+          },
+        ],
+      })
+      .set('Authorization', `Bearer ${token}`);
 
-  //   expect(statusCode).toEqual(204);
-  //   expect(body).toBeUndefined();
-  // });
+    expectPlaylistWithTracks(body, [{ name: 'test track' }, { name: 'test track 2' }]);
+
+    expect(statusCode).toEqual(200);
+  });
 });

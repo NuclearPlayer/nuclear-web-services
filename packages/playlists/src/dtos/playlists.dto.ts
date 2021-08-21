@@ -1,4 +1,4 @@
-export class CreatePlaylistDto {
+export type CreatePlaylistDto = {
   author: string;
   name: string;
   private: boolean;
@@ -6,4 +6,6 @@ export class CreatePlaylistDto {
     name: string;
     artist: string;
   }[];
-}
+};
+
+export type UpdatePlaylistDto = Pick<CreatePlaylistDto, 'author'> & Partial<CreatePlaylistDto>;
