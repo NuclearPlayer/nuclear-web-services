@@ -1,10 +1,19 @@
-import { AllowNull, BelongsToMany, Column, DataType, Model, Table, ValidationFailed } from 'sequelize-typescript';
+import {
+  AllowNull,
+  BelongsToMany,
+  Column,
+  DataType,
+  HasMany,
+  Model,
+  Table,
+  ValidationFailed,
+} from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
 
 import { HttpException } from '@nws/core';
 
+import { CreateTrackDto } from '../dtos/tracks.dto';
 import { Track } from './tracks.model';
-import { TrackPlaylist } from './tracks_playlists.model';
 
 export interface PlaylistAttributes {
   id: string;
@@ -13,7 +22,9 @@ export interface PlaylistAttributes {
   private: boolean;
 }
 
-export type PlaylistCreationAttributes = Optional<PlaylistAttributes, 'id' | 'private'> & { tracks?: Track[] };
+export type PlaylistCreationAttributes = Optional<PlaylistAttributes, 'id' | 'private'> & {
+  tracks?: Track[] | Omit<CreateTrackDto, 'playlistId'>[];
+};
 
 @Table({
   timestamps: true,
@@ -46,7 +57,7 @@ export class Playlist extends Model<PlaylistAttributes, PlaylistCreationAttribut
   })
   public private: boolean;
 
-  @BelongsToMany(() => Track, () => TrackPlaylist)
+  @HasMany(() => Track)
   tracks: Track[];
 
   @ValidationFailed

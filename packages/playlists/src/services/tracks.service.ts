@@ -2,7 +2,7 @@ import { CrudService } from '@nws/core';
 
 import { CreateTrackDto } from '../dtos/tracks.dto';
 import { Artist } from '../models/artists.model';
-import { Track } from '../models/tracks.model';
+import { Track, TrackAttributes } from '../models/tracks.model';
 import { ArtistService } from './artists.service';
 
 export class TrackService implements CrudService<Track, CreateTrackDto> {
@@ -33,5 +33,15 @@ export class TrackService implements CrudService<Track, CreateTrackDto> {
 
   create(data: CreateTrackDto): Promise<Track> {
     return this.tracks.create(data);
+  }
+
+  bulkCreate(data: CreateTrackDto[]): Promise<Track[]> {
+    return this.tracks.bulkCreate(data);
+  }
+
+  deleteWhere(query: Partial<TrackAttributes>): Promise<number> {
+    return this.tracks.destroy({
+      where: query,
+    });
   }
 }

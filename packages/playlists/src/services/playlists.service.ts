@@ -6,13 +6,11 @@ import { CreatePlaylistDto, UpdatePlaylistDto } from '../dtos/playlists.dto';
 import { Artist } from '../models/artists.model';
 import { Playlist } from '../models/playlists.model';
 import { Track } from '../models/tracks.model';
-import { TrackPlaylist } from '../models/tracks_playlists.model';
 import { ArtistService } from './artists.service';
 import { TrackService } from './tracks.service';
 
 export class PlaylistService implements CrudService<Playlist, CreatePlaylistDto> {
   public playlists = Playlist;
-  public trackPlaylist = TrackPlaylist;
   public artistService = new ArtistService();
   public trackService = new TrackService();
 
@@ -29,17 +27,10 @@ export class PlaylistService implements CrudService<Playlist, CreatePlaylistDto>
     return includePrivate ? allPlaylists : allPlaylists.filter((playlist) => !playlist.private);
   }
 
-  async processTracks(tracks: { name: string; artist: string }[], author: string): Promise<Track[]> {
+  async findArtistIdsForTracks(tracks: CreatePlaylistDto['tracks'], author: string) {
     const result = [];
-
     for (const trackIndex in tracks) {
       const track = tracks[trackIndex];
-      let foundTrack = await this.trackService.findOneByArtistAndName(track.artist, track.name);
-
-      if (foundTrack !== null) {
-        result.push(foundTrack);
-        continue;
-      }
 
       let artist = await this.artistService.findOneByName(track.artist);
       if (!Boolean(artist)) {
@@ -49,28 +40,38 @@ export class PlaylistService implements CrudService<Playlist, CreatePlaylistDto>
         });
       }
 
-      result.push(
-        await this.trackService.create({
-          artistId: (artist as Artist).id,
-          name: track.name,
-          addedBy: author,
-        }),
-      );
+      result.push({
+        artistId: (artist as Artist).id,
+        name: track.name,
+        addedBy: author,
+      });
     }
 
-    return result as Track[];
+    return result;
+  }
+
+  async createTracksForUpdate(tracks: CreatePlaylistDto['tracks'], author: string, playlistId: string) {
+    const tracksData = (await this.findArtistIdsForTracks(tracks, author)).map((track) => ({
+      ...track,
+      playlistId,
+    }));
+    return this.trackService.bulkCreate(tracksData);
   }
 
   async create(data: CreatePlaylistDto): Promise<Playlist> {
-    const tracks = await this.processTracks(data.tracks, data.author);
+    const tracks = await this.findArtistIdsForTracks(data.tracks, data.author);
 
-    return this.playlists.create(
+    return await this.playlists.create(
       {
         ...data,
         tracks,
       },
       {
-        include: [Track],
+        include: [
+          {
+            model: Track.scope('playlist'),
+          },
+        ],
       },
     );
   }
@@ -81,23 +82,21 @@ export class PlaylistService implements CrudService<Playlist, CreatePlaylistDto>
       throw new HttpException(400, `Playlist with id ${id} does not exist`);
     }
 
-    const tracks = data.tracks ? await this.processTracks(data.tracks, data.author) : undefined;
+    if (data.tracks) {
+      await this.trackService.deleteWhere({ playlistId: id });
+      const tracks = await this.createTracksForUpdate(data.tracks, data.author, id);
+      instance.tracks = tracks;
+    }
 
     instance.name = data.name ?? instance.name;
     instance.private = data.private ?? instance.private;
 
-    if (tracks) {
-      this.trackPlaylist.destroy({ where: { playlistId: id } });
-      await this.trackPlaylist.bulkCreate(
-        tracks.map((track) => ({
-          trackId: track.id,
-          playlistId: id,
-        })) as TrackPlaylist[],
-      );
-    }
-
     await instance.save();
-    await instance.reload({ include: [{ model: Track, through: { attributes: [] } }] });
+    await instance.reload({
+      include: {
+        model: Track.scope('playlist'),
+      },
+    });
 
     return instance;
   }

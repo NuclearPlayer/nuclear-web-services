@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import pick from 'lodash/pick';
 
 import { HttpException } from '../../../core/src';
 import { CreatePlaylistDto, UpdatePlaylistDto } from '../dtos/playlists.dto';
@@ -52,7 +53,10 @@ export class PlaylistsController {
         author: user.id,
       });
 
-      res.status(201).json(newPlaylist);
+      res.status(201).json({
+        ...pick(newPlaylist, 'id', 'author', 'name', 'private', 'createdAt', 'updatedAt'),
+        tracks: newPlaylist.tracks.map((track) => pick(track, 'id', 'artistId', 'name', 'addedBy')),
+      });
     } catch (error) {
       return next(error);
     }

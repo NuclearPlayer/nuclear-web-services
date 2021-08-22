@@ -7,6 +7,7 @@ import {
   DefaultScope,
   ForeignKey,
   Model,
+  Scopes,
   Table,
   ValidationFailed,
 } from 'sequelize-typescript';
@@ -16,19 +17,26 @@ import { HttpException } from '@nws/core/src';
 
 import { Artist } from './artists.model';
 import { Playlist } from './playlists.model';
-import { TrackPlaylist } from './tracks_playlists.model';
 
 export interface TrackAttributes {
   id: string;
   name: string;
   artistId: string;
+  playlistId: string;
   addedBy: string;
 }
 
 export type TrackCreationAttributes = Optional<TrackAttributes, 'id'>;
 
 @DefaultScope(() => ({
-  attributes: { exclude: ['playlists', 'createdAt', 'updatedAt'] },
+  attributes: { exclude: ['createdAt', 'updatedAt'] },
+}))
+@Scopes(() => ({
+  playlist: {
+    attributes: {
+      exclude: ['playlistId', 'createdAt', 'updatedAt'],
+    },
+  },
 }))
 @Table({
   timestamps: true,
@@ -45,7 +53,6 @@ export class Track extends Model<TrackAttributes, TrackCreationAttributes> {
   @AllowNull(false)
   @Column({
     type: DataType.STRING(),
-    unique: 'artist_track_name',
   })
   public name: string;
 
@@ -53,7 +60,6 @@ export class Track extends Model<TrackAttributes, TrackCreationAttributes> {
   @ForeignKey(() => Artist)
   @Column({
     type: DataType.UUIDV4,
-    unique: 'artist_track_name',
   })
   artistId: string;
 
@@ -61,13 +67,20 @@ export class Track extends Model<TrackAttributes, TrackCreationAttributes> {
   artist: Artist;
 
   @AllowNull(false)
+  @ForeignKey(() => Playlist)
+  @Column({
+    type: DataType.UUIDV4,
+  })
+  playlistId: string;
+
+  @BelongsTo(() => Playlist)
+  playlist: Playlist;
+
+  @AllowNull(false)
   @Column({
     type: DataType.UUIDV4,
   })
   public addedBy: string;
-
-  @BelongsToMany(() => Playlist, () => TrackPlaylist)
-  playlists: Playlist[];
 
   @ValidationFailed
   static afterValidateHook(instance: any, options: any, error: any) {

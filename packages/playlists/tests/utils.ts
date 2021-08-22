@@ -56,8 +56,8 @@ export const expectPlaylistWithTracks = (body: object, tracks: { name: string }[
     tracks: tracks.map((track) => ({
       id: expect.any(String),
       artistId: expect.any(String),
-      name: track.name,
       addedBy: DEFAULT_USER_ID,
+      ...track,
     })),
     private: false,
     createdAt: expect.any(String),

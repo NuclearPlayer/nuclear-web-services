@@ -2,14 +2,7 @@ import supertest from 'supertest';
 
 import App from '../src/app';
 import { PlaylistsRoute } from '../src/routes/playlists.route';
-import {
-  createPlaylist,
-  createToken,
-  DEFAULT_USER_ID,
-  expectPlaylistWithTracks,
-  mockGetTokenFail,
-  mockGetTokenOK,
-} from './utils';
+import { createPlaylist, createToken, expectPlaylistWithTracks, mockGetTokenFail, mockGetTokenOK } from './utils';
 
 jest.mock('node-fetch');
 
@@ -63,7 +56,7 @@ describe('Playlists route tests', () => {
 
     expect(statusCode).toEqual(400);
     expect(body).toEqual({
-      message: ['author is a required field', 'name is a required field'],
+      message: ['name is a required field'],
     });
   });
 
@@ -73,13 +66,12 @@ describe('Playlists route tests', () => {
       .post('/playlists')
       .send({
         name: 'ab',
-        author: 123,
       })
       .set('Authorization', `Bearer ${token}`);
 
     expect(statusCode).toEqual(400);
     expect(body).toEqual({
-      message: ['author must be a valid UUID', 'name must be at least 3 characters'],
+      message: ['name must be at least 3 characters'],
     });
   });
 
@@ -192,9 +184,15 @@ describe('Playlists route tests', () => {
     });
 
     expect(statusCode).toEqual(201);
-    expectPlaylistWithTracks(body, [{ name: 'new track' }, { name: 'new track 2' }, { name: 'new track' }]);
+    expectPlaylistWithTracks(body, [
+      { name: 'new track' },
+      { name: 'new track' },
+      { name: 'new track 2' },
+      { name: 'new track' },
+    ]);
     expect(body.tracks[0].artistId).toEqual(body.tracks[1].artistId);
-    expect(body.tracks[0].artistId).not.toEqual(body.tracks[2].artistId);
+    expect(body.tracks[0].artistId).toEqual(body.tracks[2].artistId);
+    expect(body.tracks[0].artistId).not.toEqual(body.tracks[3].artistId);
   });
 
   it('tries to put own playlist (200)', async () => {
