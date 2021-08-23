@@ -222,4 +222,35 @@ describe('Playlists route tests', () => {
 
     expect(statusCode).toEqual(200);
   });
+
+  it('put should not modify tracks if they are not in the request', async () => {
+    const token = createToken();
+    const {
+      body: { id },
+    } = await createPlaylist(app, token, {
+      tracks: [
+        {
+          name: 'test track',
+          artist: 'artist-1',
+        },
+        {
+          name: 'test track 2',
+          artist: 'artist-2',
+        },
+      ],
+    });
+
+    mockGetTokenOK();
+    const { body, statusCode } = await supertest(app.getServer())
+      .put(`/playlists/${id}`)
+      .send({ name: 'updated name', private: true })
+      .set('Authorization', `Bearer ${token}`);
+
+    expectPlaylistWithTracks(body, [{ name: 'test track' }, { name: 'test track 2' }], {
+      name: 'updated name',
+      private: true,
+    });
+
+    expect(statusCode).toEqual(200);
+  });
 });

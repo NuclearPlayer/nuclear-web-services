@@ -2,13 +2,14 @@ import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
 import supertest from 'supertest';
 
+import { CreatePlaylistDto } from '../src/dtos/playlists.dto';
 import { Playlist } from '../src/models/playlists.model';
 
 export const DEFAULT_USER_ID = '8281df2b-77b9-4005-9062-566eb9bd1503';
 
 export const createToken = (id?: string) => jwt.sign({ id: id ?? DEFAULT_USER_ID }, process.env.JWT_SECRET as string);
 
-export const createPlaylist = async (app: any, token: string, data?: object) =>
+export const createPlaylist = async (app: any, token: string, data?: Partial<CreatePlaylistDto>) =>
   supertest(app.getServer())
     .post('/playlists')
     .send({
