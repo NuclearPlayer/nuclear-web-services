@@ -37,7 +37,7 @@ export class Artist extends Model<ArtistAttributes, ArtistCreationAttributes> {
 
   @AllowNull(false)
   @Column({
-    type: DataType.UUIDV4,
+    type: DataType.UUID,
   })
   public addedBy: string;
 

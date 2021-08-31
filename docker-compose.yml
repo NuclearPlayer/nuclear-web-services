@@ -1,0 +1,50 @@
+# docker-compose.yml
+version: '3'
+volumes:
+  database_data:
+    driver: local
+services:
+  database:
+    image: 'postgres'
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    volumes:
+      - database_data:/var/lib/postgresql/data/
+      - ./tasks/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      POSTGRES_PASSWORD: 'docker'
+    ports: 
+      - '5432:5432'
+  identity:
+    build:
+      context: .
+      dockerfile: './Dockerfile.identity'
+      args:
+        PORT: 3000
+    environment:
+      DATABASE_URL: 'postgres://postgres:docker@database:5432/identity'
+      JWT_SECRET: '7H848VE4bTRUY7EohDFGHGTq'
+      PORT: 3000
+    ports:
+      - '3000:3000'
+    depends_on:
+      - database
+  playlists:
+    build:
+      context: .
+      dockerfile: './Dockerfile.playlists'
+      args:
+        PORT: 3010
+    environment:
+      DATABASE_URL: 'postgres://postgres:docker@database:5432/playlists'
+      JWT_SECRET: '7H848VE4bTRUY7EohDFGHGTq'
+      PORT: 3010
+      IDENTITY_SERVICE_URL: 'http://identity:3000'
+    ports:
+      - '3010:3010'
+    depends_on:
+      - database
+      - identity

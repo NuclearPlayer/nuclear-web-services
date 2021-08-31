@@ -44,7 +44,7 @@ export type TrackCreationAttributes = Optional<TrackAttributes, 'id'>;
 })
 export class Track extends Model<TrackAttributes, TrackCreationAttributes> {
   @Column({
-    type: DataType.UUIDV4,
+    type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
   })
@@ -59,7 +59,7 @@ export class Track extends Model<TrackAttributes, TrackCreationAttributes> {
   @AllowNull(false)
   @ForeignKey(() => Artist)
   @Column({
-    type: DataType.UUIDV4,
+    type: DataType.UUID,
   })
   artistId: string;
 
@@ -69,7 +69,7 @@ export class Track extends Model<TrackAttributes, TrackCreationAttributes> {
   @AllowNull(false)
   @ForeignKey(() => Playlist)
   @Column({
-    type: DataType.UUIDV4,
+    type: DataType.UUID,
   })
   playlistId: string;
 
@@ -78,7 +78,7 @@ export class Track extends Model<TrackAttributes, TrackCreationAttributes> {
 
   @AllowNull(false)
   @Column({
-    type: DataType.UUIDV4,
+    type: DataType.UUID,
   })
   public addedBy: string;
 

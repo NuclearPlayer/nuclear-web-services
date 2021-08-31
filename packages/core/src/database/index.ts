@@ -12,7 +12,6 @@ if (env === 'production') {
   sequelize = new Sequelize(config[env].database as string, {
     dialect: config[env].dialect as any,
     protocol: config[env].protocol,
-    dialectOptions: { ssl: { require: true, rejectUnauthorized: false } },
   });
 } else {
   sequelize = new Sequelize({
