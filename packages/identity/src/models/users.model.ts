@@ -64,7 +64,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
   public displayName: string;
 
   @IsEmail
-  @AllowNull(false)
+  @AllowNull(true)
   @Column({
     type: DataType.STRING(),
   })

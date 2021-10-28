@@ -45,11 +45,12 @@ describe('Auth controller tests', () => {
 
     expect(statusCode).toEqual(400);
     expect(body).toEqual({
-      message: [
-        'username must be at least 4 characters',
-        'email must be a valid email',
-        'password must be at least 6 characters',
-      ],
+      message: 'Validation failed',
+      errors: {
+        username: 'username must be at least 4 characters',
+        email: 'email must be a valid email',
+        password: 'password must be at least 6 characters',
+      },
     });
   });
 
@@ -62,7 +63,10 @@ describe('Auth controller tests', () => {
 
     expect(statusCode).toEqual(400);
     expect(body).toEqual({
-      message: ['this username is reserved'],
+      message: 'Validation failed',
+      errors: {
+        username: 'this username is reserved',
+      },
     });
   });
 

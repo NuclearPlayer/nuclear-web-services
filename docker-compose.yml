@@ -11,6 +11,9 @@ services:
       timeout: 45s
       interval: 10s
       retries: 10
+    command: ["postgres", "-c", "ssl=true", 
+        "-c", "ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem", "-c", 
+        "ssl_key_file=/etc/ssl/private/ssl-cert-snakeoil.key"]
     volumes:
       - database_data:/var/lib/postgresql/data/
       - ./tasks/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -25,7 +28,7 @@ services:
       args:
         PORT: 3000
     environment:
-      DATABASE_URL: 'postgres://postgres:docker@database:5432/identity'
+      DATABASE_URL: 'postgresql://postgres:docker@database:5432/identity'
       JWT_SECRET: '7H848VE4bTRUY7EohDFGHGTq'
       PORT: 3000
     ports:
@@ -39,7 +42,7 @@ services:
       args:
         PORT: 3010
     environment:
-      DATABASE_URL: 'postgres://postgres:docker@database:5432/playlists'
+      DATABASE_URL: 'postgresql://postgres:docker@database:5432/playlists'
       JWT_SECRET: '7H848VE4bTRUY7EohDFGHGTq'
       PORT: 3010
       IDENTITY_SERVICE_URL: 'http://identity:3000'
