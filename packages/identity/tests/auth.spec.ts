@@ -36,6 +36,69 @@ describe('Auth controller tests', () => {
     });
   });
 
+  it('tries to sign up without an email (201)', async () => {
+    const { body, statusCode } = await supertest(app.getServer()).post('/signup').send({
+      username: 'test-user',
+      password: 'asdQWE123',
+    });
+
+    expect(statusCode).toEqual(201);
+    expect(body).toEqual({
+      id: expect.any(String),
+      username: 'test-user',
+      displayName: 'test-user',
+      accountState: 'UNCONFIRMED',
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
+    });
+  });
+
+  it('tries to sign up with the same username twice (400)', async () => {
+    await supertest(app.getServer()).post('/signup').send({
+      username: 'test-user',
+      password: 'asdQWE123',
+    });
+    const { body, statusCode } = await supertest(app.getServer()).post('/signup').send({
+      username: 'test-user',
+      password: 'asdQWE123',
+    });
+
+    expect(statusCode).toEqual(400);
+    expect(body).toEqual({
+      message: 'Validation error',
+      errors: [
+        {
+          path: 'username',
+          message: 'username must be unique',
+        },
+      ],
+    });
+  });
+
+  it('tries to sign up with the same email twice (400)', async () => {
+    await supertest(app.getServer()).post('/signup').send({
+      username: 'test-user',
+      email: 'test@example.com',
+      password: 'asdQWE123',
+    });
+    const { body, statusCode } = await supertest(app.getServer()).post('/signup').send({
+      username: 'test-user-2',
+      email: 'test@example.com',
+      password: 'asdQWE123',
+    });
+
+    expect(statusCode).toEqual(400);
+    expect(body).toEqual({
+      message: 'Validation error',
+      errors: [
+        {
+          path: 'email',
+          message: 'email must be unique',
+        },
+      ],
+    });
+  });
+
   it('tries to sign up with invalid field values (400)', async () => {
     const { body, statusCode } = await supertest(app.getServer()).post('/signup').send({
       username: 'te',
@@ -45,12 +108,21 @@ describe('Auth controller tests', () => {
 
     expect(statusCode).toEqual(400);
     expect(body).toEqual({
-      message: 'Validation failed',
-      errors: {
-        username: 'username must be at least 4 characters',
-        email: 'email must be a valid email',
-        password: 'password must be at least 6 characters',
-      },
+      message: 'Validation error',
+      errors: [
+        {
+          path: 'username',
+          message: 'username must be at least 4 characters',
+        },
+        {
+          path: 'email',
+          message: 'email must be a valid email',
+        },
+        {
+          path: 'password',
+          message: 'password must be at least 6 characters',
+        },
+      ],
     });
   });
 
@@ -63,10 +135,13 @@ describe('Auth controller tests', () => {
 
     expect(statusCode).toEqual(400);
     expect(body).toEqual({
-      message: 'Validation failed',
-      errors: {
-        username: 'this username is reserved',
-      },
+      message: 'Validation error',
+      errors: [
+        {
+          path: 'username',
+          message: 'this username is reserved',
+        },
+      ],
     });
   });
 

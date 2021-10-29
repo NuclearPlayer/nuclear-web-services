@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { pick } from 'lodash';
 import * as Yup from 'yup';
 
 import { HttpException } from '../http';
@@ -11,10 +12,8 @@ export const validate = (schema: Yup.AnySchema) => async (req: Request, res: Res
     next(
       new HttpException(
         400,
-        'Validation failed',
-        Object.fromEntries(
-          (error as Yup.ValidationError).inner.map((innerError) => [innerError.path, innerError.message]),
-        ),
+        'Validation error',
+        (error as Yup.ValidationError).inner.map((err) => pick(err, ['message', 'path'])),
       ),
     );
   }

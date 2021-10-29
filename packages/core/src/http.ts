@@ -1,9 +1,18 @@
+import { ValidationError } from 'yup';
+
+export type PickedValidationError =
+  | Pick<ValidationError, 'message' | 'path'>
+  | {
+      message: ValidationError['message'];
+      path: null;
+    };
+
 export class HttpException extends Error {
   public status: number;
   public message: string;
-  public errors?: Record<string, string>;
+  public errors?: PickedValidationError[];
 
-  constructor(status: number, message: string, errors?: Record<string, string>) {
+  constructor(status: number, message: string, errors?: PickedValidationError[]) {
     super(message);
     this.status = status;
     this.message = message;

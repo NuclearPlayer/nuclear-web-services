@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
-import { omit } from 'lodash';
+import { omit, pick } from 'lodash';
 import passport from 'passport';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import { Strategy as LocalStrategy } from 'passport-local';
+import { ValidationError } from 'sequelize/types';
 
 import { HttpException } from '@nws/core';
 
@@ -42,7 +43,13 @@ export const initAuthMiddleware = () => {
 
           return done(null, omit(user.toJSON(), 'password'));
         } catch (error) {
-          done(error);
+          done(
+            new HttpException(
+              400,
+              'Validation error',
+              (error as ValidationError).errors.map((err) => pick(err, ['message', 'path'])),
+            ),
+          );
         }
       },
     ),

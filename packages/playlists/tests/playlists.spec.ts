@@ -56,8 +56,8 @@ describe('Playlists route tests', () => {
 
     expect(statusCode).toEqual(400);
     expect(body).toEqual({
-      message: 'Validation failed',
-      errors: { name: 'name is a required field' },
+      message: 'Validation error',
+      errors: [{ path: 'name', message: 'name is a required field' }],
     });
   });
 
@@ -72,8 +72,13 @@ describe('Playlists route tests', () => {
 
     expect(statusCode).toEqual(400);
     expect(body).toEqual({
-      message: 'Validation failed',
-      errors: { name: 'name must be at least 3 characters' },
+      message: 'Validation error',
+      errors: [
+        {
+          message: 'name must be at least 3 characters',
+          path: 'name',
+        },
+      ],
     });
   });
 

@@ -6,7 +6,9 @@ import {
   DefaultScope,
   IsEmail,
   Model,
+  NotEmpty,
   Table,
+  Unique,
   ValidationFailed,
 } from 'sequelize-typescript';
 import { Optional } from 'sequelize/types';
@@ -52,6 +54,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
   public id: string;
 
   @AllowNull(false)
+  @Unique
   @Column({
     type: DataType.STRING(),
   })
@@ -63,12 +66,12 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
   })
   public displayName: string;
 
+  @Unique
   @IsEmail
-  @AllowNull(true)
   @Column({
     type: DataType.STRING(),
   })
-  public email: string;
+  public email?: string;
 
   @AllowNull(false)
   @Column({

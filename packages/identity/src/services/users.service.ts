@@ -28,9 +28,6 @@ export class UserService implements CrudService<User, CreateUserDto> {
   }
 
   public async create(data: CreateUserDto) {
-    const exists = (await this.users.count({ where: { email: data.email } })) > 0;
-    if (exists) throw new HttpException(400, `${data.email} already exists`);
-
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     return this.users.create({
