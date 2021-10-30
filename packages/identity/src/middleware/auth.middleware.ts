@@ -47,7 +47,7 @@ export const initAuthMiddleware = () => {
             new HttpException(
               400,
               'Validation error',
-              (error as ValidationError).errors.map((err) => pick(err, ['message', 'path'])),
+              (error as ValidationError).errors?.map((err) => pick(err, ['message', 'path'])),
             ),
           );
         }

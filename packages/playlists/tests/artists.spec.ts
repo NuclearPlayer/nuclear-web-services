@@ -50,7 +50,12 @@ describe('Artists route - `POST', () => {
     expect(statusCode).toEqual(400);
     expect(body).toEqual({
       message: 'Validation error',
-      errors: { name: 'name is a required field' },
+      errors: [
+        {
+          message: 'name is a required field',
+          path: 'name',
+        },
+      ],
     });
   });
 

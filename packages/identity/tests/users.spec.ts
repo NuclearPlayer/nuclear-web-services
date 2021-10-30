@@ -108,14 +108,14 @@ describe('Users route tests', () => {
     const { body, statusCode } = await supertest(app.getServer())
       .post('/users')
       .set('Authorization', `Bearer ${token}`)
-      .send({ username: 'test-user', email: 'test2@example.com', password: 'abc' });
+      .send({ username: 'new-test-user', email: 'test2@example.com', password: 'abc' });
 
     expect(statusCode).toEqual(201);
 
     expect(body).toEqual({
       id: expect.stringMatching(UuidRegex),
-      username: 'test-user',
-      displayName: 'test-user',
+      username: 'new-test-user',
+      displayName: 'new-test-user',
       email: 'test2@example.com',
       accountState: 'UNCONFIRMED',
       createdAt: expect.any(String),
