@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { pick } from 'lodash';
 import * as Yup from 'yup';
 
+import { Logger } from '..';
 import { HttpException } from '../http';
 
 export const validate = (schema: Yup.AnySchema) => async (req: Request, res: Response, next: NextFunction) => {
@@ -9,6 +10,7 @@ export const validate = (schema: Yup.AnySchema) => async (req: Request, res: Res
     await schema.validate(req.body, { abortEarly: false });
     return next();
   } catch (error) {
+    Logger.error(error);
     next(
       new HttpException(
         400,

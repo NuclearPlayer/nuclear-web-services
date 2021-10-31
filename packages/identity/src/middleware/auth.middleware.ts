@@ -5,7 +5,7 @@ import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { ValidationError } from 'sequelize/types';
 
-import { HttpException } from '@nws/core';
+import { HttpException, Logger } from '@nws/core';
 
 import { UserService } from '../services/users.service';
 
@@ -43,6 +43,7 @@ export const initAuthMiddleware = () => {
 
           return done(null, omit(user.toJSON(), 'password'));
         } catch (error) {
+          Logger.error(error);
           done(
             new HttpException(
               400,
